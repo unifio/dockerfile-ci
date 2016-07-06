@@ -1,0 +1,29 @@
+machine:
+  environment:
+    CI_VERSION: 0.0.1
+    PKR_VERSION: 0.10.1
+    TF_VERISON: 0.6.16
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - docker info
+    - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
+    - docker build -t unifio/ci .
+    - mkdir -p ~/docker; docker save unifio/ci > ~/docker/image.tar
+
+test:
+  override:
+    - docker run --rm unifio/ci -c "packer version"
+    - docker run --rm unifio/ci -c "terraform version"
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker tag -f `docker images | grep -E 'unifio/ci' | awk '{print $3}'` unifio/ci:${CI_VERSION}
+      - docker push unifio/ci
