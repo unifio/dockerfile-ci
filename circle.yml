@@ -1,8 +1,8 @@
 machine:
   environment:
     CI_VERSION: 0.0.1
-    PKR_VERSION: 0.10.1
-    TF_VERISON: 0.6.16
+    PKR_VERSION: latest
+    TF_VERISON: latest
   services:
     - docker
 
@@ -11,6 +11,10 @@ dependencies:
     - "~/docker"
   override:
     - docker info
+    - docker run --name packer unifio/packer:${PKR_VERSION} version 
+    - docker run --name terraform unifio/terraform:${TF_VERSION} version
+    - docker cp packer:/usr/local/bin/ pkr_files
+    - docker cp terraform:/usr/local/bin/ tf_files
     - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
     - docker build -t unifio/ci .
     - mkdir -p ~/docker; docker save unifio/ci > ~/docker/image.tar
