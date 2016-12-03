@@ -1,8 +1,8 @@
 machine:
   environment:
-    CI_VERSION: 0.0.1
-    PKR_VERSION: latest
-    TF_VERISON: latest
+    MAJOR_VERSION_TAG: 1
+    PACKER_VERSION_TAG: latest
+    TERRAFORM_VERISON_TAG: latest
   services:
     - docker
 
@@ -11,8 +11,8 @@ dependencies:
     - "~/docker"
   override:
     - docker info
-    - docker run --name packer unifio/packer:${PKR_VERSION} version 
-    - docker run --name terraform unifio/terraform:${TF_VERSION} version
+    - docker run --name packer unifio/packer:${PACKER_VERSION_TAG} version 
+    - docker run --name terraform unifio/terraform:${TERRAFORM_VERSION_TAG} version
     - docker cp packer:/usr/local/bin/ pkr_files
     - docker cp terraform:/usr/local/bin/ tf_files
     - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
@@ -21,6 +21,7 @@ dependencies:
 
 test:
   override:
+    - docker run --entrypoint /bin/sh unifio/ci -c "gem list | grep covalence"
     - docker run --entrypoint /bin/sh unifio/ci -c "packer version"
     - docker run --entrypoint /bin/sh unifio/ci -c "terraform version"
 
@@ -29,5 +30,5 @@ deployment:
     branch: master
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag -f `docker images | grep -E 'unifio/ci' | awk '{print $3}'` unifio/ci:${CI_VERSION}
+      - docker tag -f `docker images | grep -E 'unifio/ci' | awk '{print $3}'` unifio/ci:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
       - docker push unifio/ci
