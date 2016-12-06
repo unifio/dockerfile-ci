@@ -22,6 +22,7 @@ dependencies:
 test:
   override:
     - docker run --entrypoint /bin/sh unifio/ci -c "gem list | grep covalence"
+    - docker run --entrypoint /bin/sh unifio/ci -c "aws --version"
     - docker run --entrypoint /bin/sh unifio/ci -c "packer version"
     - docker run --entrypoint /bin/sh unifio/ci -c "terraform version"
 
