@@ -5,7 +5,7 @@ RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
 
     # Install PIP
-    apk add --no-cache --update curl python-dev && \
+    apk add --no-cache --update curl jq python-dev && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
 
