@@ -4,6 +4,11 @@ MAINTAINER "Unif.io, Inc. <support@unif.io>"
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
 
+    # Install glibc
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub "https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub" && \
+    wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk" && \
+    apk add glibc-2.23-r3.apk && \
+
     # Install PIP
     apk add --no-cache --update curl jq python-dev && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
