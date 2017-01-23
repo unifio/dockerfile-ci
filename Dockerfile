@@ -1,6 +1,9 @@
 FROM unifio/covalence:latest
 MAINTAINER "Unif.io, Inc. <support@unif.io>"
 
+LABEL packer_version="0.12.0"
+LABEL terraform_version="0.8.2"
+
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
 
