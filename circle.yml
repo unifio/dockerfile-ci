@@ -23,8 +23,8 @@ test:
   override:
     - docker run --entrypoint /bin/sh unifio/ci -c "gem list | grep covalence"
     - docker run --entrypoint /bin/sh unifio/ci -c "aws --version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "packer version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "terraform version"
+    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "packer version"
+    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "terraform version"
 
 deployment:
   hub:
