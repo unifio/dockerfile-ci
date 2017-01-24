@@ -1,8 +1,8 @@
 machine:
   environment:
     MAJOR_VERSION_TAG: 1
-    PACKER_VERSION_TAG: latest
-    TERRAFORM_VERISON_TAG: latest
+    PACKER_VERSION_TAG: 0.12.0
+    TERRAFORM_VERISON_TAG: 0.8.2
   services:
     - docker
 
@@ -16,20 +16,20 @@ dependencies:
     - docker cp packer:/usr/local/bin/ pkr_files
     - docker cp terraform:/usr/local/bin/ tf_files
     - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
-    - docker build -t unifio/ci .
-    - mkdir -p ~/docker; docker save unifio/ci > ~/docker/image.tar
+    - docker build -t whistlelabs/ci .
+    - mkdir -p ~/docker; docker save whistlelabs/ci > ~/docker/image.tar
 
 test:
   override:
-    - docker run --entrypoint /bin/sh unifio/ci -c "gem list | grep covalence"
-    - docker run --entrypoint /bin/sh unifio/ci -c "aws --version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "packer version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "terraform version"
+    - docker run --entrypoint /bin/sh whistlelabs/ci -c "gem list | grep covalence"
+    - docker run --entrypoint /bin/sh whistlelabs/ci -c "aws --version"
+    - docker run --entrypoint /bin/sh whistlelabs/ci -c "packer version"
+    - docker run --entrypoint /bin/sh whistlelabs/ci -c "terraform version"
 
 deployment:
   hub:
     branch: master
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag -f `docker images | grep -E 'unifio/ci' | awk '{print $3}'` unifio/ci:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
-      - docker push unifio/ci
+      - docker tag -f `docker images | grep -E 'whistlelabs/ci' | awk '{print $3}'` whistlelabs/ci:${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+      - docker push whistlelabs/ci

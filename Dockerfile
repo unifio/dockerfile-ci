@@ -1,6 +1,9 @@
 FROM unifio/covalence:latest
 MAINTAINER "Unif.io, Inc. <support@unif.io>"
 
+LABEL packer_version="0.12.0"
+LABEL terraform_version="0.8.2"
+
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
 
@@ -10,7 +13,7 @@ RUN mkdir -p /tmp/build && \
     apk add glibc-2.23-r3.apk && \
 
     # Install PIP
-    apk add --no-cache --update curl jq python-dev && \
+    apk add --no-cache --update curl curl-dev jq python-dev && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
 
