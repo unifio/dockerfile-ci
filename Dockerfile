@@ -13,7 +13,7 @@ RUN mkdir -p /tmp/build && \
     apk add glibc-2.23-r3.apk && \
 
     # Install PIP
-    apk add --no-cache --update curl jq python-dev && \
+    apk add --no-cache --update curl curl-dev jq python-dev && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
 
