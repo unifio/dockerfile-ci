@@ -26,3 +26,4 @@ RUN mkdir -p /tmp/build && \
 
 COPY pkr_files/packer* /usr/local/bin/
 COPY tf_files/terraform* /usr/local/bin/
+ADD node_files.tar.gz /

@@ -3,6 +3,11 @@ machine:
     MAJOR_VERSION_TAG: 1
     PACKER_VERSION_TAG: latest
     TERRAFORM_VERISON_TAG: latest
+    CI_DEST_DIR: 'node_files'
+    CI_CONTAINER_NAME: 'unifio-ci'
+    CI_IMAGE_NAME: 'unifio/ci:node-2.0.0'
+    CI_SCRIPT_DEBUG: 1
+
   services:
     - docker
 
@@ -11,10 +16,11 @@ dependencies:
     - "~/docker"
   override:
     - docker info
-    - docker run --name packer unifio/packer:${PACKER_VERSION_TAG} version 
+    - docker run --name packer unifio/packer:${PACKER_VERSION_TAG} version
     - docker run --name terraform unifio/terraform:${TERRAFORM_VERSION_TAG} version
     - docker cp packer:/usr/local/bin/ pkr_files
     - docker cp terraform:/usr/local/bin/ tf_files
+    - mkdir -p ${CI_DEST_DIR} && ./copybins.sh
     - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
     - docker build -t unifio/ci .
     - mkdir -p ~/docker; docker save unifio/ci > ~/docker/image.tar
@@ -25,6 +31,8 @@ test:
     - docker run --entrypoint /bin/sh unifio/ci -c "aws --version"
     - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "packer version"
     - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "terraform version"
+    - docker run --entrypoint /bin/sh unifio/ci -c "node --version"
+    - docker run --entrypoint /bin/sh unifio/ci -c "npm --version"
 
 deployment:
   hub:
