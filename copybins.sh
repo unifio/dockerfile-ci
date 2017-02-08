@@ -2,9 +2,8 @@
 platform=''
 tarOpt=''
 tarArgs=''
-unamestr=$(uname)
 ciScriptDebug=${CI_SCRIPT_DEBUG:-""}
-#unamestr="Linux"
+unamestr=$(uname)
 if [[ "$unamestr" == 'Linux' ]]; then
   platform='linux'
   tarOpt=''
@@ -25,6 +24,7 @@ ${tarOpt} /usr/lib/node_modules \
 ${tarOpt} /usr/share/doc        \
 ${tarOpt} /usr/share/systemtap  \
 ${tarOpt} /usr/bin/node         \
+${tarOpt} /usr/bin/npm          \
 ${tarOpt} /usr/bin/zip
 EOM
 # Set Default values or check for environment variable override
@@ -34,15 +34,15 @@ imageName=${CI_IMAGE_NAME:-"unifio/ci:node-2.0.0"}
 containerSuffix=${CI_CONTAINER_SUFFIX:-""}
 binaryFile=${CI_BINARY_FILE:-"node"}
 # Run the container, name it, and get binary version number.
-docker run --entrypoint "${binaryFile}" --name "${containerName}" \
+docker run --entrypoint "${binaryFile}" --name "${containerName}${containerSuffix}" \
         "${imageName}" --version 2>/dev/null
 # now verify that the container ran and echo its ID for reference
-matchingStarted=$(docker ps -lqa --filter="name=${containerName}" \
+matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
               --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
 echo "Last container ran matching ${matchingStarted}"
 
 if [[ $matchingStarted ]]; then
-  docker cp "${containerName}":/ - | (cd "${destDir}" && tar -xp $tarArgs $fileList)
+  docker cp "${containerName}${containerSuffix}":/ - | (cd "${destDir}" && tar -xp $tarArgs $fileList)
   tar czvf ./"${destDir}".tar.gz -C "${destDir}"/ usr/
   if tar tvzf ./"${destDir}".tar.gz | grep -q "\/bin\/${binaryFile}\$"; then
     echo "$binaryFile found in tarball ready for copy to container"
