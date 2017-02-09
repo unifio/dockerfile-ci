@@ -39,5 +39,5 @@ deployment:
     branch: master
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag -f `docker images | grep -E 'unifio/ci' | awk '{print $3}'` unifio/ci:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
+      - docker tag -f `docker images unifio/ci | grep -E 'unifio/ci' | grep -v 'node-2.0.0' | awk '{print $3}'` unifio/ci:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
       - docker push unifio/ci
