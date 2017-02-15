@@ -4,6 +4,11 @@ tarOpt=''
 tarArgs=''
 ciScriptDebug=${CI_SCRIPT_DEBUG:-""}
 unamestr=$(uname)
+tf_version=${TERRAFORM_VERSION_TAG:-""}
+pkr_version=${PACKER_VERSION_TAG:-""}
+tf_image=${TF_IMAGE:-'unifio/terraform'}
+pkr_image=${pkr_image:-'unifio/packer'}
+
 if [[ "$unamestr" == 'Linux' ]]; then
   platform='linux'
   tarOpt=''
@@ -30,7 +35,7 @@ EOM
 # Set Default values or check for environment variable override
 destDir=${CI_DEST_DIR:-"node_files"}
 containerName=${CI_CONTAINER_NAME:-"unifio-ci"}
-imageName=${CI_IMAGE_NAME:-"unifio/ci:node-2.0.0"}
+imageName=${CI_NODE_IMAGE_NAME:-"unifio/ci:node-2.0.0"}
 containerSuffix=${CI_CONTAINER_SUFFIX:-""}
 binaryFile=${CI_BINARY_FILE:-"node"}
 # Run the container, name it, and get binary version number.
@@ -42,9 +47,37 @@ matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffi
 echo "Last container ran matching ${matchingStarted}"
 
 if [[ $matchingStarted ]]; then
+  mkdir -p "${destDir}"
   docker cp "${containerName}${containerSuffix}":/ - | (cd "${destDir}" && tar -xp $tarArgs $fileList)
   tar czvf ./"${destDir}".tar.gz -C "${destDir}"/ usr/
   if tar tvzf ./"${destDir}".tar.gz | grep -q "\/bin\/${binaryFile}\$"; then
     echo "$binaryFile found in tarball ready for copy to container"
+  fi
+fi
+
+# now take care of the terraform files.
+if [[ $tf_version && $tf_image ]]; then
+  echo "Running the terraform container and naming it if it hasn't been already."
+  docker run --name terraform "${tf_image}":"${tf_version}" version 2>/dev/null
+  # veirfy that the container ran and grab its ID
+  matchingStarted=$(docker ps -lqa --filter="name=terraform${containerSuffix}" \
+              --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
+  echo "Terraform container ran ${matchingStarted}"
+  if [[ $matchingStarted ]];then
+    echo "Copying binaries.."
+    docker cp terraform:/usr/local/bin/ tf_files
+  fi
+fi
+# now take care of the packer files
+if [[ $pkr_version && $pkr_image ]]; then
+  echo "Running the packer container and naming it if it hasn't been already."
+  docker run --name packer "${pkr_image}":"${pkr_version}" version 2>/dev/null
+  # veirfy that the container ran and grab its ID
+  matchingStarted=$(docker ps -lqa --filter="name=packer${containerSuffix}" \
+              --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
+  echo "packer container ran ${matchingStarted}"
+  if [[ $matchingStarted ]];then
+    echo "Copying binaries.."
+    docker cp packer:/usr/local/bin/ pkr_files
   fi
 fi
