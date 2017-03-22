@@ -28,11 +28,16 @@ dependencies:
       else
         echo "Building Node.js binary image. ${CI_NODE_IMAGE_NAME} was not found."
         echo "The build will take about 40 minutes to complete."
+          if [[ -e ~/docker/image_${DOCKER_BIN_TAG}.tar ]]; then
+              docker load --input ~/docker/image_${DOCKER_BIN_TAG}.tar
+          fi
           if docker build -f Dockerfile-build-node --rm=false -t "${CI_NODE_IMAGE_NAME}" .; then
             echo newJStag >> ~/.allbinaries
             echo "${CI_NODE_IMAGE_NAME} has been built and will be pushed to dockerhhub"
             ./copybins.sh node && \
             echo node >> ~/.allbinaries && echo npm >> ~/.allbinaries
+            mkdir -p ~/docker; docker save "${CI_NODE_IMAGE_NAME}" > ~/docker/image_${DOCKER_BIN_TAG}.tar
+            docker push "${CI_NODE_IMAGE_NAME}"
           fi
         fi
     - >
@@ -51,11 +56,11 @@ dependencies:
       fi
     - >
       if grep -q node ~/.allbinaries; then
-        docker build -f Dockerfile-node --rm=false -t "${CI_IMAGE_NAME}" .
+        docker build -f Dockerfile-node --rm=false -t "${CI_IMAGE_NAME}":latest .
       else
-        docker build --rm=false -t "${CI_IMAGE_NAME}" .
+        docker build --rm=false -t "${CI_IMAGE_NAME}":latest .
       fi
-    - mkdir -p ~/docker; docker save "${CI_IMAGE_NAME}" > ~/docker/image.tar
+    - mkdir -p ~/docker; docker save "${CI_IMAGE_NAME}":latest > ~/docker/image.tar
     - cat ~/.allbinaries
 
 test:
@@ -94,17 +99,10 @@ deployment:
       - >
         IMAGE_TO_TAG=$(docker images | grep -E "${CI_IMAGE_NAME}" | grep -v "${DOCKER_BIN_TAG}" | awk '{print $3}')
         if grep -q node ~/.allbinaries; then
-          docker tag "${IMAGE_TO_TAG}" \
-          "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${NODE_VERSION_TAG}.${CIRCLE_BUILD_NUM}
-          if grep -q newJStag ~/.allbinaries; then
-            IMAGE_TO_TAG=$(docker images | grep -E "${DOCKER_BIN_TAG}" | awk '{print $3}')
-            docker tag "${IMAGE_TO_TAG}" \
-           ${CI_IMAGE_NAME}:${DOCKER_BIN_TAG}.${CIRCLE_BUILD_NUM} && \
-            docker push "${CI_IMAGE_NAME}":${DOCKER_BIN_TAG}.${CIRCLE_BUILD_NUM} && \
-            docker push "${CI_IMAGE_NAME}":${DOCKER_BIN_TAG}
-          fi
-         else
-           docker tag "${IMAGE_TO_TAG}" \
-            "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
-         fi
-      - docker push "${CI_IMAGE_NAME}"
+          docker tag -f "${IMAGE_TO_TAG}" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${NODE_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+          docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${NODE_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+        else
+          docker tag -f "${IMAGE_TO_TAG}" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+          docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+        fi
+      - docker push "${CI_IMAGE_NAME}":latest
