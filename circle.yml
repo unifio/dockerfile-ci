@@ -97,11 +97,14 @@ deployment:
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - >
-        IMAGE_TO_TAG=$(docker images | grep -E "${CI_IMAGE_NAME}" | grep -v "${DOCKER_BIN_TAG}" | awk '{print $3}')
         if grep -q node ~/.allbinaries; then
+          IMAGE_TO_TAG=$(docker images | grep -E "${CI_IMAGE_NAME}" | grep -v "${DOCKER_BIN_TAG}" | awk '{print $3}')
           docker tag -f "${IMAGE_TO_TAG}" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${NODE_VERSION_TAG}.${CIRCLE_BUILD_NUM}
           docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${NODE_VERSION_TAG}.${CIRCLE_BUILD_NUM}
-        else
+        fi
+      - >
+        if ! grep -q node ~/.allbinaries; then
+          IMAGE_TO_TAG=$(docker images | grep -E "${CI_IMAGE_NAME}" | grep -v "${DOCKER_BIN_TAG}" | awk '{print $3}')
           docker tag -f "${IMAGE_TO_TAG}" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
           docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
         fi
