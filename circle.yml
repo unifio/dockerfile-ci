@@ -1,8 +1,8 @@
 machine:
   environment:
     MAJOR_VERSION_TAG: 2
-    PACKER_VERSION_TAG: latest
-    TERRAFORM_VERSION_TAG: latest
+    PACKER_VERSION_TAG: 'latest'
+    TERRAFORM_VERSION_TAG: '0.9.4'
     CI_DEST_DIR: 'node_files'
     CI_CONTAINER_NAME: 'unifio-ci'
     CI_NODE_IMAGE_NAME: 'unifio/ci:node-2.0.0'
