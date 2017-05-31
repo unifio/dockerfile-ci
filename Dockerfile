@@ -1,8 +1,8 @@
 FROM unifio/covalence:latest
 MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
-LABEL packer_version="0.12.3"
-LABEL terraform_version="0.8.8"
+LABEL packer_version="1.0.0"
+LABEL terraform_version="0.9.6"
 
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
