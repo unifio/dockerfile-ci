@@ -7,7 +7,7 @@ unamestr=$(uname)
 tf_version=${TERRAFORM_VERSION_TAG:-""}
 pkr_version=${PACKER_VERSION_TAG:-""}
 tf_image=${TF_IMAGE:-'unifio/terraform'}
-pkr_image=${pkr_image:-'unifio/packer'}
+pkr_image=${PKR_IMAGE:-'unifio/packer'}
 
 if [[ "$unamestr" == 'Linux' ]]; then
   platform='linux'
