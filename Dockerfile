@@ -2,7 +2,7 @@ FROM unifio/covalence:latest
 MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
 LABEL packer_version="1.0.0"
-LABEL terraform_version="0.9.6"
+LABEL terraform_version="0.9.8"
 
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
