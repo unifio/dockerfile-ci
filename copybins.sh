@@ -8,6 +8,9 @@ tf_version=${TERRAFORM_VERSION_TAG:-""}
 pkr_version=${PACKER_VERSION_TAG:-""}
 tf_image=${TF_IMAGE:-'unifio/terraform'}
 pkr_image=${PKR_IMAGE:-'unifio/packer'}
+artifact_tool=${ARTIFACT_TOOL:-'unifio/promote-atlas-artifact'}
+artifact_tool_version=${ARTIFACT_TOOL_VERSION:-'latest'}
+circle_token=${CIRCLE_TOKEN:-""}
 
 if [[ "$unamestr" == 'Linux' ]]; then
   platform='linux'
@@ -80,4 +83,14 @@ if [[ $pkr_version && $pkr_image ]]; then
     echo "Copying binaries.."
     docker cp packer:/usr/local/bin/ pkr_files
   fi
+fi
+
+# Include the promote artifact tool into container
+if [[ $circle_token != "" ]]; then
+    curl https://circleci.com/api/v1.1/project/github/${artifact_tool}/${artifact_tool_version}/artifacts?circle-token=$circle_token | grep -o 'https://[^"]*' | \
+    while read bin; do
+        bin_name=`basename $bin`
+        curl ${bin}?circle-token=$circle_token > /usr/local/bin/${bin_name}
+        chmod 755 /usr/local/bin/${bin_name}
+    done
 fi
