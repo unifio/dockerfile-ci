@@ -86,7 +86,7 @@ if [[ $pkr_version && $pkr_image ]]; then
 fi
 
 # Include the promote artifact tool into container
-if [[ $circle_token != "" ]]; then
+if [[ -z "$circle_token" ]]; then
     curl https://circleci.com/api/v1.1/project/github/${artifact_tool}/${artifact_tool_version}/artifacts?circle-token=$circle_token | grep -o 'https://[^"]*' | \
     while read bin; do
         bin_name=`basename $bin`
