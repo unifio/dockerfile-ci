@@ -31,6 +31,7 @@ test:
     - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "terraform version"
     - docker run --entrypoint /bin/sh unifio/ci -c "node --version"
     - docker run --entrypoint /bin/sh unifio/ci -c "npm --version"
+    - if [[ -n "$CIRCLE_TOKEN" ]]; then docker run --entrypoint /bin/sh unifio/ci -c "promote-atlas-artifact --version"; fi
 
 deployment:
   hub:
