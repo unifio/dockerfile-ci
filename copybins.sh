@@ -8,6 +8,9 @@ tf_version=${TERRAFORM_VERSION_TAG:-""}
 pkr_version=${PACKER_VERSION_TAG:-""}
 tf_image=${TF_IMAGE:-'unifio/terraform'}
 pkr_image=${pkr_image:-'unifio/packer'}
+artifact_tool=${ARTIFACT_TOOL:-'WhistleLabs/promote-atlas-artifact'}
+artifact_tool_version=${ARTIFACT_TOOL_VERSION:-'latest'}
+circle_token=${CIRCLE_TOKEN:-""}
 binaryToInstall=${1:-""}
 if [[ ${binaryToInstall} ]]; then
 
@@ -91,6 +94,17 @@ EOM
       echo "Copying binaries.."
       docker cp ${containerName}:/usr/local/bin/ pkr_files
     fi
+  fi
+
+  # Include the promote artifact tool into container
+  mkdir other_bins
+  if [[ -n "$circle_token" ]]; then
+      curl https://circleci.com/api/v1.1/project/github/${artifact_tool}/${artifact_tool_version}/artifacts?circle-token=$circle_token | grep -o 'https://[^"]*' | \
+      while read bin; do
+          bin_name=`basename $bin`
+          curl ${bin}?circle-token=$circle_token > other_bins/${bin_name}
+          chmod 755 other_bins/${bin_name}
+      done
   fi
 else
   echo "No binary type specified for copy"
