@@ -5,6 +5,7 @@ machine:
     TERRAFORM_VERSION_TAG: 'latest'
     CI_DEST_DIR: 'node_files'
     CI_CONTAINER_NAME: 'unifio-ci'
+    CI_IMAGE_NAME: 'unifio/ci'
     CI_NODE_IMAGE_NAME: 'unifio/ci:node-2.0.0'
     CI_SCRIPT_DEBUG: 1
     TF_IMAGE: 'unifio/terraform'
@@ -20,23 +21,23 @@ dependencies:
     - docker info
     - ./copybins.sh
     - if [[ -e ~/docker/image.tar ]]; then docker load --input ~/docker/image.tar; fi
-    - docker build -t unifio/ci .
-    - mkdir -p ~/docker; docker save unifio/ci > ~/docker/image.tar
+    - docker build -t ${CI_IMAGE_NAME} .
+    - mkdir -p ~/docker; docker save ${CI_IMAGE_NAME} > ~/docker/image.tar
 
 test:
   override:
-    - docker run --entrypoint /bin/sh unifio/ci -c "gem list | grep covalence"
-    - docker run --entrypoint /bin/sh unifio/ci -c "aws --version"
-    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "packer version"
-    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh unifio/ci -c "terraform version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "node --version"
-    - docker run --entrypoint /bin/sh unifio/ci -c "npm --version"
-    - if [[ -n "$CIRCLE_TOKEN" ]]; then docker run --entrypoint /bin/sh unifio/ci -c "promote-atlas-artifact --version"; fi
+    - docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "gem list | grep covalence"
+    - docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "aws --version"
+    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "packer version"
+    - docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "terraform version"
+    - docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "node --version"
+    - docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "npm --version"
+    - if [[ -n "$CIRCLE_TOKEN" ]]; then docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "promote-atlas-artifact --version"; fi
 
 deployment:
   hub:
     branch: master
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag -f `docker images unifio/ci | grep -E 'unifio/ci' | grep -v 'node-2.0.0' | awk '{print $3}'` unifio/ci:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
-      - docker push unifio/ci
+      - docker tag -f `docker images ${CI_IMAGE_NAME} | grep -E "${CI_IMAGE_NAME}" | grep -v 'node-2.0.0' | awk '{print $3}'` ${CI_IMAGE_NAME}:${MAJOR_VERSION_TAG}.0.${CIRCLE_BUILD_NUM}
+      - docker push ${CI_IMAGE_NAME}
