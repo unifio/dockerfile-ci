@@ -51,6 +51,11 @@ dependencies:
         echo packer >> ~/.allbinaries
       fi
     - >
+      if [[ -n "${CIRCLE_TOKEN}" ]];then
+        ./copybins.sh promote-atlas-artifact && \
+        echo promote-atlas-artifact >> ~/.allbinaries
+      fi
+    - >
       if [[ -e ~/docker/image.tar ]]; then
         docker load --input ~/docker/image.tar
       fi
@@ -90,7 +95,10 @@ test:
       if grep -q npm ~/.allbinaries; then
         docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "npm --version"
       fi
-    - if [[ -n "$CIRCLE_TOKEN" ]]; then docker run --entrypoint /bin/sh unifio/ci -c "promote-atlas-artifact --version"; fi
+    - >
+      if [[ -n "$CIRCLE_TOKEN" ]]; then
+        docker run --entrypoint /bin/sh ${CI_IMAGE_NAME} -c "promote-atlas-artifact --version"
+      fi
     - cat ~/.allbinaries
 deployment:
   hub:
