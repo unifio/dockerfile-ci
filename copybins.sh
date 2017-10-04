@@ -91,6 +91,7 @@ if [[ -n "$circle_token" ]]; then
     curl https://circleci.com/api/v1.1/project/github/${artifact_tool}/${artifact_tool_version}/artifacts?circle-token=$circle_token | grep -o 'https://[^"]*' | \
     while read bin; do
         bin_name=`basename $bin`
+        echo "Downloading ${bin_name}"
         curl ${bin}?circle-token=$circle_token > other_bins/${bin_name}
         chmod 755 other_bins/${bin_name}
     done
