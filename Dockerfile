@@ -9,6 +9,9 @@ RUN mkdir -p /tmp/build && \
     wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk" && \
     apk add glibc-2.23-r3.apk && \
 
+    # Install SSH
+    apk add --no-cache --update openssh && \
+
     # Install PIP
     apk add --no-cache --update curl curl-dev jq python-dev && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
