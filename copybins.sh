@@ -88,7 +88,7 @@ EOM
   if [[ $tf_provider_version && $tf_provider_image && "${binaryToInstall}" == "terraform-providers" ]]; then
     echo "Running the ${binaryToInstall} container and naming it if it hasn't been already."
     containerName=terraform-providers
-    docker run --name "${containerName}" "${tf_image}":"${tf_version}" version 2>/dev/null
+    docker run --name "${containerName}" "${tf_provider_image}":"${tf_provider_version}" version 2>/dev/null
     # veirfy that the container ran and grab its ID
     matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
                 --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
