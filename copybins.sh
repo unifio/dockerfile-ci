@@ -5,8 +5,10 @@ tarArgs=''
 ciScriptDebug=${CI_SCRIPT_DEBUG:-""}
 unamestr=$(uname)
 tf_version=${TERRAFORM_VERSION_TAG:-""}
+tf_provider_version=${TERRAFORM_PROVIDER_VERSION_TAG:-""}
 pkr_version=${PACKER_VERSION_TAG:-""}
 tf_image=${TF_IMAGE:-'unifio/terraform'}
+tf_provider_image=${TF_PROVIDER_IMAGE:-'whistle/terraform-providers'}
 pkr_image=${pkr_image:-'unifio/packer'}
 artifact_tool=${ARTIFACT_TOOL:-'WhistleLabs/promote-atlas-artifact'}
 artifact_tool_version=${ARTIFACT_TOOL_VERSION:-'latest'}
@@ -79,6 +81,21 @@ EOM
     if [[ $matchingStarted ]];then
       echo "Copying binaries.."
       docker cp ${containerName}:/usr/local/bin/ tf_files
+    fi
+  fi
+
+  # now take care of the terraform provider files.
+  if [[ $tf_provider_version && $tf_provider_image && "${binaryToInstall}" == "terraform-providers" ]]; then
+    echo "Running the ${binaryToInstall} container and naming it if it hasn't been already."
+    containerName=terraform-providers
+    docker run --name "${containerName}" "${tf_image}":"${tf_version}" version 2>/dev/null
+    # veirfy that the container ran and grab its ID
+    matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
+                --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
+    echo "Terraform provider container ran ${matchingStarted}"
+    if [[ $matchingStarted ]];then
+      echo "Copying binaries.."
+      docker cp ${containerName}:/usr/local/bin/terraform-providers/ tf_provider_files
     fi
   fi
   # now take care of the packer files
