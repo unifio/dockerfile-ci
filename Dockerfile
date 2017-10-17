@@ -30,5 +30,8 @@ RUN mkdir -p /tmp/build && \
 
 COPY pkr_files/packer* /usr/local/bin/
 COPY tf_files/terraform* /usr/local/bin/
-COPY tf_provider_files/ /usr/local/bin/terraform-providers/
+COPY tf_provider_files/ /usr/local/bin/terraform-providers/linux_amd64
 COPY other_bins/* /usr/local/bin/
+
+# Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
+RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
