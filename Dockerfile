@@ -3,6 +3,7 @@ MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
 LABEL packer_version="1.0.0"
 LABEL terraform_version="0.10.7"
+LABEL terraform_provider_version="0.0.1"
 
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -29,4 +30,5 @@ RUN mkdir -p /tmp/build && \
 
 COPY pkr_files/packer* /usr/local/bin/
 COPY tf_files/terraform* /usr/local/bin/
+COPY tf_provider_files/ /usr/local/bin/terraform-providers/
 COPY other_bins/* /usr/local/bin/
