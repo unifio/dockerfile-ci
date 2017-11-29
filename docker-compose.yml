@@ -1,5 +1,12 @@
 version: '3'
 services:
+  covalence:
+    build:
+      context: ./tools/covalence
+      args:
+        covalence_version: $COVALENCE_VERSION
+        gemfury_token: $GEMFURY_TOKEN
+    image: "${COVALENCE_REGISTRY:-unifio/covalence}:${COVALENCE_VERSION}"
   packer:
     build:
       context: ./tools/packer
