@@ -1,5 +1,5 @@
 FROM unifio/covalence:latest
-MAINTAINER "Unif.io, Inc. <support@unif.io>"
+LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 RUN mkdir -p /tmp/build && \
     cd /tmp/build && \

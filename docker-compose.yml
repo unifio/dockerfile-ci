@@ -1,0 +1,14 @@
+version: '3'
+services:
+  packer:
+    build:
+      context: ./tools/packer
+      args:
+        packer_version: $PACKER_VERSION
+    image: "${PACKER_REGISTRY:-unifio/packer}:${PACKER_VERSION}"
+  terraform:
+    build:
+      context: ./tools/terraform
+      args:
+        terraform_version: $TERRAFORM_VERSION
+    image: "${TERRAFORM_REGISTRY:-unifio/terraform}:${TERRAFORM_VERSION}"
