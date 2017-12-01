@@ -1,7 +1,9 @@
-FROM unifio/covalence:latest
+FROM unifio/covalence
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
-RUN mkdir -p /tmp/build && \
+RUN set -ex; \
+
+    mkdir -p /tmp/build && \
     cd /tmp/build && \
 
     # Install glibc
@@ -24,7 +26,7 @@ RUN mkdir -p /tmp/build && \
     gem install awesome_print consul_loader thor --no-ri --no-rdoc && \
 
     # Cleanup
-    cd /tmp && \
+    cd / && \
     rm -rf /tmp/build
 
 COPY pkr_files/packer* /usr/local/bin/

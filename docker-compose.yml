@@ -6,16 +6,25 @@ services:
       args:
         covalence_version: $COVALENCE_VERSION
         gemfury_token: $GEMFURY_TOKEN
-    image: "${COVALENCE_REGISTRY:-unifio/covalence}:${COVALENCE_VERSION}"
+    image: "${COVALENCE_REGISTRY:-unifio/covalence}"
   packer:
     build:
       context: ./tools/packer
       args:
         packer_version: $PACKER_VERSION
-    image: "${PACKER_REGISTRY:-unifio/packer}:${PACKER_VERSION}"
+    image: "${PACKER_REGISTRY:-unifio/packer}"
   terraform:
     build:
       context: ./tools/terraform
       args:
         terraform_version: $TERRAFORM_VERSION
-    image: "${TERRAFORM_REGISTRY:-unifio/terraform}:${TERRAFORM_VERSION}"
+    image: "${TERRAFORM_REGISTRY:-unifio/terraform}"
+  ci-infra:
+    build:
+      context: .
+      dockerfile: Dockerfile-infra
+    image: "unifio/ci"
+    depends_on:
+      - covalence
+      - packer
+      - terraform
