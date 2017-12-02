@@ -1,0 +1,317 @@
+common: &common
+  working_directory: ~/dockerfile-ci
+  environment:
+    CI_MAJOR_VERSION: 2
+    COVALENCE_REGISTRY: 'unifio/covalence'
+    COVALENCE_VERSION: 0.7.5
+    PACKER_REGISTRY: 'unifio/packer'
+    PACKER_VERSION: 1.1.2
+    TERRAFORM_REGISTRY: 'unifio/terraform'
+    TERRAFORM_VERSION: 0.10.8
+
+version: 2
+jobs:
+  build_covalence:
+    <<: *common
+    docker:
+      - image: alpine:3.6
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              curl \
+              docker \
+              python-dev
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python get-pip.py
+            pip install --upgrade \
+              docker-compose
+      - restore_cache:
+          keys:
+            - dock1-cov-layer-cache-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load < /caches/cov.tar | true
+            docker images
+      - run:
+          name: Build Covalence image
+          command: |
+            docker-compose build covalence
+      - run:
+          name: Execute acceptance test
+          command: |
+            docker run -i --name uat --entrypoint /bin/sh \
+              -e CHECKPOINT_DISABLE=1 \
+              -e COVALENCE_TEST_ENVS=uat \
+              -e AWS_DEFAULT_REGION=us-east-1 \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              ${COVALENCE_REGISTRY} &
+            sleep 10
+            docker start uat
+            docker cp tools/covalence/uat/. uat:/data
+            docker exec uat sh -c "apk add --no-cache --update unzip && \
+              wget -q \"https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip\" && \
+              unzip -d /usr/local/bin terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+            docker exec uat sh -c 'rake ci'
+            docker exec uat sh -c 'rake uat:apply'
+            docker exec uat sh -c 'rake uat:destroy'
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches /workspace
+            docker images -a
+            docker save $(docker images -aq) > /caches/cov.tar
+            docker save unifio/covalence > /workspace/cov.tar
+      - save_cache:
+          key: dock1-cov-layer-cache-{{ .Branch }}-{{ checksum "/caches/cov.tar" }}
+          paths:
+            - /caches/cov.tar
+      - deploy:
+          name: Register Covalence image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag $COVALENCE_REGISTRY:$COVALENCE_VERSION $COVALENCE_REGISTRY:$COVALENCE_VERSION
+              docker push $COVALENCE_REGISTRY
+            fi
+      - persist_to_workspace:
+          root: /workspace
+          paths:
+            - cov.tar
+
+  build_terraform:
+    <<: *common
+    docker:
+      - image: alpine:3.6
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              curl \
+              docker \
+              python-dev
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python get-pip.py
+            pip install --upgrade \
+              docker-compose
+      - restore_cache:
+          keys:
+            - dock1-tf-layer-cache-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load < /caches/tf.tar | true
+            docker images
+      - run:
+          name: Build Terraform image
+          command: |
+            docker-compose build terraform
+      - run:
+          name: Execute acceptance test
+          command: |
+            docker run -i --name uat --entrypoint /bin/sh \
+              -e CHECKPOINT_DISABLE=1 \
+              -e AWS_DEFAULT_REGION=us-east-1 \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              ${TERRAFORM_REGISTRY} &
+            sleep 10
+            docker start uat
+            docker cp tools/terraform/uat/. uat:/data
+            docker exec uat sh -c 'terraform init'
+            docker exec uat sh -c 'terraform plan'
+            docker exec uat sh -c 'terraform apply'
+            docker exec uat sh -c 'terraform destroy -force'
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches /workspace
+            docker images -a
+            docker save $(docker images -aq) > /caches/tf.tar
+             docker save unifio/terraform > /workspace/tf.tar
+      - save_cache:
+          key: dock1-tf-layer-cache-{{ .Branch }}-{{ checksum "/caches/tf.tar" }}
+          paths:
+            - /caches/tf.tar
+      - deploy:
+          name: Register Terraform image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag $TERRAFORM_REGISTRY:$TERRAFORM_VERSION $TERRAFORM_REGISTRY:$TERRAFORM_VERSION
+              docker push $TERRAFORM_REGISTRY
+            fi
+      - persist_to_workspace:
+          root: /workspace
+          paths:
+            - tf.tar
+
+  build_packer:
+    <<: *common
+    docker:
+      - image: alpine:3.6
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              curl \
+              docker \
+              python-dev
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python get-pip.py
+            pip install --upgrade \
+              docker-compose
+      - restore_cache:
+          keys:
+            - dock1-pkr-layer-cache-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load < /caches/pkr.tar | true
+            docker images
+      - run:
+          name: Build Packer image
+          command: |
+            docker-compose build packer
+      - run:
+          name: Execute acceptance test
+          command: |
+            docker run -i --name uat --entrypoint /bin/sh \
+              -e CHECKPOINT_DISABLE=1 \
+              -e AWS_DEFAULT_REGION=us-east-1 \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              ${PACKER_REGISTRY} &
+            sleep 10
+            docker start uat
+            docker cp tools/packer/uat/. uat:/data
+            docker exec uat sh -c "packer validate -var version=${CIRCLE_BUILD_NUM} uat-aws.json"
+            docker exec uat sh -c "packer build -var version=${CIRCLE_BUILD_NUM} uat-aws.json"
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches /workspace
+            docker images -a
+            docker save $(docker images -aq) > /caches/pkr.tar
+            docker save unifio/packer > /workspace/pkr.tar
+      - save_cache:
+          key: dock1-pkr-layer-cache-{{ .Branch }}-{{ checksum "/caches/pkr.tar" }}
+          paths:
+            - /caches/pkr.tar
+      - deploy:
+          name: Register Packer image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag $PACKER_REGISTRY:$PACKER_VERSION $PACKER_REGISTRY:$PACKER_VERSION
+              docker push $PACKER_REGISTRY
+            fi
+      - persist_to_workspace:
+          root: /workspace
+          paths:
+            - pkr.tar
+
+  build_ci_infra:
+    <<: *common
+    docker:
+      - image: ruby:2.4-alpine
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              bash \
+              build-base \
+              curl \
+              docker \
+              python-dev \
+              ruby-dev \
+              tar
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python get-pip.py
+            pip install --upgrade \
+              docker-compose
+      - restore_cache:
+          keys:
+            - dock1-ci-infra-layer-cache-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load < /caches/ci-infra.tar | true
+            docker load < /workspace/cov.tar | true
+            docker load < /workspace/tf.tar | true
+            docker load < /workspace/pkr.tar | true
+            docker images
+      - run:
+          name: Copy binaries from upstream containers
+          command: |
+            ./copybins.sh
+      - run:
+          name: Build CI infrastructure image
+          command: |
+            docker-compose build ci-infra
+      - run:
+          name: Execute container tests
+          command: |
+            bundle check --path=/caches/bundle || bundle install --path=/caches/bundle --jobs=4 --retry=3
+            bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/container/rspec.xml
+      - store_test_results:
+          path: ~/rspec
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker images -a
+            docker save $(docker images -aq) > /caches/ci-infra.tar
+      - save_cache:
+          key: dock1-ci-infra-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-infra.tar" }}
+          paths:
+            - /caches/ci-infra.tar
+      - save_cache:
+          key: gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - /caches/bundle
+      - deploy:
+          name: Register CI infrastructure image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag $CI_INFRA_REGISTRY:$COVALENCE_VERSION $CI_INFRA_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
+              docker push $CI_INFRA_REGISTRY
+            fi
+
+workflows:
+  version: 2
+  ci_container_pipeline:
+    jobs:
+      - build_covalence
+      - build_terraform
+      - build_packer
+      - build_ci_infra:
+          requires:
+            - build_covalence
+            - build_terraform
+            - build_packer
