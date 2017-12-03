@@ -4,6 +4,7 @@ tarOpt=''
 tarArgs=''
 ciScriptDebug=${CI_SCRIPT_DEBUG:-""}
 unamestr=$(uname)
+copy_node_bins=${COPY_NODE_BINS:-'true'}
 tf_version=${TERRAFORM_VERSION_TAG:-'latest'}
 pkr_version=${PACKER_VERSION_TAG:-'latest'}
 tf_image=${TF_IMAGE:-'unifio/terraform'}
@@ -12,51 +13,53 @@ artifact_tool=${ARTIFACT_TOOL:-'unifio/promote-atlas-artifact'}
 artifact_tool_version=${ARTIFACT_TOOL_VERSION:-'latest'}
 circle_token=${CIRCLE_TOKEN:-""}
 
-if [[ "$unamestr" == 'Linux' ]]; then
-  platform='linux'
-  tarOpt=''
-  tarArgs="--wildcards --exclude=*zipinfo*"
-elif [[ "$unamestr" == 'Darwin' || "$unamestr" == 'FreeBSD' ]]; then
-  platform='freebsd'
-  tarOpt=''
-  tarArgs=''
-fi
-if [[ $ciScriptDebug ]];then
-  theArgs="-v $theArgs"
-fi
+if [[ $copy_node_bins == 'true' ]]; then
+  if [[ "$unamestr" == 'Linux' ]]; then
+    platform='linux'
+    tarOpt=''
+    tarArgs="--wildcards --exclude=*zipinfo*"
+  elif [[ "$unamestr" == 'Darwin' || "$unamestr" == 'FreeBSD' ]]; then
+    platform='freebsd'
+    tarOpt=''
+    tarArgs=''
+  fi
+  if [[ $ciScriptDebug ]];then
+    theArgs="-v $theArgs"
+  fi
 
-read -r -d '' fileList << EOM
-${tarOpt} /usr/bin/unzip        \
-${tarOpt} /usr/include/node     \
-${tarOpt} /usr/lib/node_modules \
-${tarOpt} /usr/share/doc        \
-${tarOpt} /usr/share/systemtap  \
-${tarOpt} /usr/bin/node         \
-${tarOpt} /usr/bin/npm          \
-${tarOpt} /usr/bin/zip
+  read -r -d '' fileList << EOM
+  ${tarOpt} /usr/bin/unzip        \
+  ${tarOpt} /usr/include/node     \
+  ${tarOpt} /usr/lib/node_modules \
+  ${tarOpt} /usr/share/doc        \
+  ${tarOpt} /usr/share/systemtap  \
+  ${tarOpt} /usr/bin/node         \
+  ${tarOpt} /usr/bin/npm          \
+  ${tarOpt} /usr/bin/zip
 EOM
 
-# Set Default values or check for environment variable override
-destDir=${CI_DEST_DIR:-"node_files"}
-containerName=${CI_CONTAINER_NAME:-"unifio-ci"}
-imageName=${CI_NODE_IMAGE_NAME:-"unifio/ci:node-2.0.0"}
-containerSuffix=${CI_CONTAINER_SUFFIX:-""}
-binaryFile=${CI_BINARY_FILE:-"node"}
+  # Set Default values or check for environment variable override
+  destDir=${CI_DEST_DIR:-"node_files"}
+  containerName=${CI_CONTAINER_NAME:-"unifio-ci"}
+  imageName=${CI_NODE_IMAGE_NAME:-"unifio/ci:node-2.0.0"}
+  containerSuffix=${CI_CONTAINER_SUFFIX:-""}
+  binaryFile=${CI_BINARY_FILE:-"node"}
 
-# Run the container, name it, and get binary version number.
-docker run --entrypoint "${binaryFile}" --name "${containerName}${containerSuffix}" \
-  "${imageName}" --version 2>/dev/null
-# now verify that the container ran and echo its ID for reference
-matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
-  --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
-echo "Last container ran matching ${matchingStarted}"
+  # Run the container, name it, and get binary version number.
+  docker run --entrypoint "${binaryFile}" --name "${containerName}${containerSuffix}" \
+    "${imageName}" --version 2>/dev/null
+  # now verify that the container ran and echo its ID for reference
+  matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
+    --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
+  echo "Last container ran matching ${matchingStarted}"
 
-if [[ $matchingStarted ]]; then
-  mkdir -p "${destDir}"
-  docker cp "${containerName}${containerSuffix}":/ - | (cd "${destDir}" && tar -xp $tarArgs $fileList)
-  tar czvf ./"${destDir}".tar.gz -C "${destDir}"/ usr/
-  if tar tvzf ./"${destDir}".tar.gz | grep -q "\/bin\/${binaryFile}\$"; then
-    echo "$binaryFile found in tarball ready for copy to container"
+  if [[ $matchingStarted ]]; then
+    mkdir -p "${destDir}"
+    docker cp "${containerName}${containerSuffix}":/ - | (cd "${destDir}" && tar -xp $tarArgs $fileList)
+    tar czvf ./"${destDir}".tar.gz -C "${destDir}"/ usr/
+    if tar tvzf ./"${destDir}".tar.gz | grep -q "\/bin\/${binaryFile}\$"; then
+      echo "$binaryFile found in tarball ready for copy to container"
+    fi
   fi
 fi
 
@@ -88,7 +91,7 @@ if [[ $pkr_version && $pkr_image ]]; then
 fi
 
 # Include the promote artifact tool into container
-mkdir other_bins
+mkdir -p other_bins
 if [[ -n "$circle_token" ]]; then
   curl https://circleci.com/api/v1.1/project/github/${artifact_tool}/${artifact_tool_version}/artifacts?circle-token=$circle_token | grep -o 'https://[^"]*' | \
   while read bin; do
