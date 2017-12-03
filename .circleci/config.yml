@@ -78,7 +78,7 @@ jobs:
           name: Register Covalence image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker tag $COVALENCE_REGISTRY $COVALENCE_REGISTRY:$COVALENCE_VERSION
               docker push $COVALENCE_REGISTRY
             fi
@@ -150,7 +150,7 @@ jobs:
           name: Register Terraform image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker tag $TERRAFORM_REGISTRY $TERRAFORM_REGISTRY:$TERRAFORM_VERSION
               docker push $TERRAFORM_REGISTRY
             fi
@@ -220,7 +220,7 @@ jobs:
           name: Register Packer image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker tag $PACKER_REGISTRY $PACKER_REGISTRY:$PACKER_VERSION
               docker push $PACKER_REGISTRY
             fi
@@ -299,7 +299,7 @@ jobs:
           name: Register CI infrastructure image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker tag $CI_INFRA_REGISTRY $CI_INFRA_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
               docker push $CI_INFRA_REGISTRY
             fi
