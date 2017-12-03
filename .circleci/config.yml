@@ -1,6 +1,7 @@
 common: &common
   working_directory: ~/dockerfile-ci
   environment:
+    CI_INFRA_REGISTRY: 'unifio/ci'
     CI_MAJOR_VERSION: 2
     COVALENCE_REGISTRY: 'unifio/covalence'
     COVALENCE_VERSION: 0.7.5
@@ -78,7 +79,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag $COVALENCE_REGISTRY:$COVALENCE_VERSION $COVALENCE_REGISTRY:$COVALENCE_VERSION
+              docker tag $COVALENCE_REGISTRY $COVALENCE_REGISTRY:$COVALENCE_VERSION
               docker push $COVALENCE_REGISTRY
             fi
       - persist_to_workspace:
@@ -150,7 +151,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag $TERRAFORM_REGISTRY:$TERRAFORM_VERSION $TERRAFORM_REGISTRY:$TERRAFORM_VERSION
+              docker tag $TERRAFORM_REGISTRY $TERRAFORM_REGISTRY:$TERRAFORM_VERSION
               docker push $TERRAFORM_REGISTRY
             fi
       - persist_to_workspace:
@@ -220,7 +221,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag $PACKER_REGISTRY:$PACKER_VERSION $PACKER_REGISTRY:$PACKER_VERSION
+              docker tag $PACKER_REGISTRY $PACKER_REGISTRY:$PACKER_VERSION
               docker push $PACKER_REGISTRY
             fi
       - persist_to_workspace:
@@ -299,7 +300,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag $CI_INFRA_REGISTRY:$COVALENCE_VERSION $CI_INFRA_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
+              docker tag $CI_INFRA_REGISTRY $CI_INFRA_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
               docker push $CI_INFRA_REGISTRY
             fi
 
