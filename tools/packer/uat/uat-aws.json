@@ -1,0 +1,38 @@
+{
+  "variables": {
+    "version": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "source_ami": "ami-63b25203",
+    "region": "us-west-2",
+    "instance_type": "m3.medium",
+    "communicator": "ssh",
+    "ssh_username": "ec2-user",
+    "ami_name": "packer-container-uat-{{isotime \"20060102-150405\"}}",
+    "ami_description": "Automated acceptance test for Packer container",
+    "ami_virtualization_type": "hvm"
+  }],
+  "provisioners": [{
+    "type": "serverspec",
+    "user": "root",
+    "rake_file": "Rakefile",
+    "rake_task": "serverspec:all"
+  }],
+  "post-processors": [[
+    {
+      "type": "vagrant",
+      "output": "packer-container-uat.box"
+    },
+    {
+      "type": "vagrant-s3",
+      "region": "us-east-1",
+      "bucket": "unifio-basebox",
+      "manifest": "manifests/packer-container-uat",
+      "box_name": "unifio/packer-container-uat",
+      "box_dir": "boxes",
+      "acl": "authenticated-read",
+      "version": "{{user `version`}}"
+    }
+  ]]
+}
