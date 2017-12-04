@@ -1,14 +1,17 @@
 common: &common
   working_directory: ~/dockerfile-ci
   environment:
-    CI_INFRA_REGISTRY: 'unifio/ci'
-    CI_MAJOR_VERSION: 2
+    CI_REGISTRY: 'unifio/ci'
+    CI_MAJOR_VERSION: '3'
     COVALENCE_REGISTRY: 'unifio/covalence'
-    COVALENCE_VERSION: 0.7.5
+    COVALENCE_VERSION: '0.7.5'
+    DUMBINIT_VERSION: '1.2.0'
+    GOSU_VERSION: '1.10'
+    NODE_VERSION: '8.9.1'
     PACKER_REGISTRY: 'unifio/packer'
-    PACKER_VERSION: 1.1.2
+    PACKER_VERSION: '1.1.2'
     TERRAFORM_REGISTRY: 'unifio/terraform'
-    TERRAFORM_VERSION: 0.10.8
+    TERRAFORM_VERSION: '0.10.8'
 
 version: 2
 jobs:
@@ -257,6 +260,10 @@ jobs:
       - restore_cache:
           keys:
             - dock1-ci-infra-layer-cache-{{ .Branch }}
+      - restore_cache:
+          keys:
+            - gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem1-{{ arch }}-{{ .Branch }}
       - run:
           name: Load Docker image layer cache
           command: |
@@ -278,7 +285,7 @@ jobs:
           name: Execute container tests
           command: |
             bundle check --path=/caches/bundle || bundle install --path=/caches/bundle --jobs=4 --retry=3
-            bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/container/rspec.xml
+            bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/container/rspec.xml spec/infra_spec.rb
       - store_test_results:
           path: ~/rspec
       - run:
@@ -300,8 +307,114 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag $CI_INFRA_REGISTRY $CI_INFRA_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
-              docker push $CI_INFRA_REGISTRY
+              docker tag $CI_REGISTRY $CI_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM
+              docker push $CI_REGISTRY
+            fi
+
+  build_ci_node:
+    <<: *common
+    docker:
+      - image: alpine:3.6
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.10.0-ce
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              bash \
+              build-base \
+              ca-certificates \
+              curl \
+              curl-dev \
+              docker \
+              libxml2-dev \
+              libxslt-dev \
+              openssl \
+              python-dev \
+              ruby \
+              ruby-bundler \
+              ruby-dev \
+              ruby-io-console \
+              ruby-json \
+              tar
+            curl -O https://bootstrap.pypa.io/get-pip.py
+            python get-pip.py
+            pip install --upgrade \
+              docker-compose
+            gem install bundler --no-ri --no-rdoc
+      - attach_workspace:
+          at: /workspace
+      - restore_cache:
+          keys:
+            - dock1-ci-node-layer-cache-{{ .Branch }}
+      - restore_cache:
+          keys:
+            - gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem1-{{ arch }}-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load < /caches/ci-node.tar | true
+            docker load < /workspace/tf.tar | true
+            docker load < /workspace/pkr.tar | true
+            docker images
+      - run:
+          name: Copy binaries from upstream containers
+          environment:
+            COPY_NODE_BINS: 'false'
+          command: |
+            ./copybins.sh
+      - run:
+          name: Build CI Node.js image
+          command: |
+            docker-compose build ci-node
+      - run:
+          name: Execute container tests
+          command: |
+            bundle check --path=/caches/bundle || bundle install --path=/caches/bundle --jobs=4 --retry=3
+            bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/container/rspec.xml spec/node_spec.rb
+      - store_test_results:
+          path: ~/rspec
+      - run:
+          name: Execute acceptance test
+          command: |
+            docker run -i --name uat --entrypoint /bin/sh \
+              -e CHECKPOINT_DISABLE=1 \
+              -e COVALENCE_TEST_ENVS=uat \
+              -e AWS_DEFAULT_REGION=us-east-1 \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              ${CI_REGISTRY}:latest-node &
+            sleep 10
+            docker start uat
+            docker cp tools/covalence/uat/. uat:/data
+            docker exec uat sh -c 'bundle exec rake ci'
+            docker exec uat sh -c 'bundle exec rake uat:apply'
+            docker exec uat sh -c 'bundle exec rake uat:destroy'
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker images -a
+            docker save $(docker images -aq) > /caches/ci-node.tar
+      - save_cache:
+          key: dock1-ci-node-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-node.tar" }}
+          paths:
+            - /caches/ci-node.tar
+      - save_cache:
+          key: gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - /caches/bundle
+      - deploy:
+          name: Register CI Node.js image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag $CI_REGISTRY:latest-node $CI_REGISTRY:$CI_MAJOR_VERSION.0.$CIRCLE_BUILD_NUM-node-$NODE_VERSION
+              docker push $CI_REGISTRY
             fi
 
 workflows:
@@ -314,5 +427,9 @@ workflows:
       - build_ci_infra:
           requires:
             - build_covalence
+            - build_terraform
+            - build_packer
+      - build_ci_node:
+          requires:
             - build_terraform
             - build_packer
