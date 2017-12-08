@@ -45,7 +45,7 @@ GEM
     concurrent-ruby (1.0.5)
     consul_loader (1.0.0)
       rest-client
-    covalence (0.7.5)
+    covalence (0.7.6)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       aws-sdk (~> 2.9.5)
@@ -201,7 +201,7 @@ DEPENDENCIES
   bigdecimal (~> 1.3.2)!
   ci_reporter_rspec (~> 1.0.0)!
   consul_loader (~> 1.0.0)!
-  covalence (= 0.7.5)!
+  covalence (= 0.7.6)!
   dockerspec (~> 0.5.0)!
   dotenv (~> 2.2.1)!
   rspec (~> 3.7.0)!
