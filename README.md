@@ -7,7 +7,7 @@ Update the global environment variables from the [.circleci/config.xml](./.circl
   environment:
     CI_MAJOR_VERSION: 2
     COVALENCE_REGISTRY: 'unifio/covalence'
-    COVALENCE_VERSION: 0.7.5
+    COVALENCE_VERSION: 0.7.6
     PACKER_REGISTRY: 'unifio/packer'
     PACKER_VERSION: 1.1.2
     TERRAFORM_REGISTRY: 'unifio/terraform'
@@ -25,5 +25,5 @@ TERRAFORM_VERSION=0.10.8 docker-compose terraform
 Then build:
 
 ```
-COVALENCE_VERSION=0.7.5 PACKER_VERSION=1.1.2 TERRAFORM_VERSION=0.10.8 docker-compose build
+COVALENCE_VERSION=0.7.6 PACKER_VERSION=1.1.2 TERRAFORM_VERSION=0.10.8 docker-compose build
 ```
