@@ -45,21 +45,28 @@ describe 'Infrastructure CI Configuration' do
       its(:exit_status) { should eq 0 }
     end
 
-    describe command('/usr/bin/node --version') do
-      its(:exit_status) { should eq 0 }
-    end
-
-    describe command('/usr/bin/npm --version') do
-      its(:exit_status) { should eq 0 }
-    end
-
     # Verify packages
     @apk_packages = %w(
+      bash
+      build-base
+      ca-certificates
       curl
       curl-dev
+      docker
+      git
       glibc
+      gnupg
+      groff
       jq
+      less
+      mercurial
+      openssl
+      openssh
       python-dev
+      ruby-dev
+      tar
+      unzip
+      wget
     )
 
     @apk_packages.each do |pkg|
@@ -70,6 +77,7 @@ describe 'Infrastructure CI Configuration' do
 
     @pip_packages = %w(
       awscli
+      docker-compose
     )
 
     @pip_packages.each do |pkg|
@@ -85,13 +93,15 @@ describe 'Infrastructure CI Configuration' do
     )
 
     @gem_packages.each do |pkg|
-      describe package(pkg) do
-        it { should be_installed.by('gem') }
+      describe command("bundle show | grep #{pkg}") do
+        its(:exit_status) { should eq 0 }
+        its(:stdout) { should match /.*#{pkg}*/ }
       end
     end
 
-    describe package('covalence') do
-      it { should be_installed.by('gem').with_version(ENV['COVALENCE_VERSION']) }
+    describe command('bundle show | grep covalence') do
+      its(:exit_status) { should eq 0 }
+      its(:stdout) { should match /.*covalence (#{ENV['COVALENCE_VERSION']})*/ }
     end
 
   end
