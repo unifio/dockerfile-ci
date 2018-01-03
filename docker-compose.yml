@@ -23,9 +23,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-infra
+      args:
+        alpine_version: $ALPINE_VERSION
+        covalence_version: $COVALENCE_VERSION
+        dumbinit_version: $DUMBINIT_VERSION
+        gemfury_token: $GEMFURY_TOKEN
+        gosu_version: $GOSU_VERSION
+        ruby_version: $RUBY_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest"
     depends_on:
-      - covalence
       - packer
       - terraform
   ci-node:

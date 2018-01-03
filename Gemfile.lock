@@ -29,7 +29,7 @@ GEM
       specinfra-backend-docker_compose (~> 0.1.0)
       specinfra-backend-docker_lxc (~> 0.2.0)
     erubis (2.7.0)
-    excon (0.59.0)
+    excon (0.60.0)
     faraday (0.13.1)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.12.2)
@@ -55,7 +55,7 @@ GEM
     net-telnet (0.1.1)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
-    poltergeist (1.16.0)
+    poltergeist (1.17.0)
       capybara (~> 2.1)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
@@ -89,7 +89,7 @@ GEM
       rspec-its
       specinfra (~> 2.72)
     sfl (2.3)
-    specinfra (2.72.1)
+    specinfra (2.73.0)
       net-scp
       net-ssh (>= 2.7, < 5.0)
       net-telnet
@@ -115,4 +115,4 @@ DEPENDENCIES
   rspec_junit_formatter (~> 0.3.0)!
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
