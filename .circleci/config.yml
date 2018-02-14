@@ -1,21 +1,21 @@
 common: &common
   working_directory: ~/dockerfile-ci
   docker:
-    - image: alpine:3.6
+    - image: alpine:3.7
   environment:
-    ALPINE_VERSION: '3.6'
+    ALPINE_VERSION: '3.7'
     CI_REGISTRY: 'unifio/ci'
     CI_MAJOR_VERSION: '3'
     COVALENCE_REGISTRY: 'unifio/covalence'
     COVALENCE_VERSION: '0.7.6'
     DUMBINIT_VERSION: '1.2.1'
     GOSU_VERSION: '1.10'
-    NODE_VERSION: '8.9.1'
+    NODE_VERSION: '8.9.4'
     PACKER_REGISTRY: 'unifio/packer'
     PACKER_VERSION: '1.1.3'
     RUBY_VERSION: '2.4'
     TERRAFORM_REGISTRY: 'unifio/terraform'
-    TERRAFORM_VERSION: '0.10.8'
+    TERRAFORM_VERSION: '0.11.3'
 
 version: 2
 jobs:
@@ -134,9 +134,9 @@ jobs:
             sleep 10
             docker start uat
             docker cp tools/terraform/uat/. uat:/data
-            docker exec uat sh -c 'terraform init'
-            docker exec uat sh -c 'terraform plan'
-            docker exec uat sh -c 'terraform apply'
+            docker exec uat sh -c 'terraform init -input=false'
+            docker exec uat sh -c 'terraform plan -input=false'
+            docker exec uat sh -c 'terraform apply -input=false -auto-approve'
             docker exec uat sh -c 'terraform destroy -force'
       - run:
           name: Save Docker image layer cache

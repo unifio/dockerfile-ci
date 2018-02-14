@@ -3,6 +3,7 @@ LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 ARG terraform_version
 ENV TERRAFORM_VERSION $terraform_version
+ENV HASHI_KEY_URL https://keybase.io/hashicorp/key.asc
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
@@ -25,8 +26,7 @@ RUN set -ex; \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
-  keyserver=$(getent ahostsv4 keys.gnupg.net | grep STREAM | head -n 1 | cut -d ' ' -f 1); \
-  gpg --keyserver $keyserver --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+  wget -O - $HASHI_KEY_URL | gpg --import; \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig" && \
