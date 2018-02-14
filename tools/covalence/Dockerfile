@@ -9,6 +9,7 @@ ARG covalence_version
 ARG gemfury_token
 
 ENV COVALENCE_VERSION $covalence_version
+ENV HASHI_KEY_URL https://keybase.io/hashicorp/key.asc
 
 RUN set -ex; \
   \
@@ -33,7 +34,7 @@ RUN set -ex; \
   mkdir -p /usr/local/external_bins && \
 
   # Docker base goodies
-  gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+  wget -O - $HASHI_KEY_URL | gpg --import; \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig" && \
