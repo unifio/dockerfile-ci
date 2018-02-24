@@ -1,11 +1,13 @@
 ---
 # VPC Stack
+env_label: 'uat'
+
 terraform::vpc::vars:
   enable_dns: 'false'
   enable_hostnames: 'false'
   region: "%{hiera('region')}"
   stack_item_fullname: 'Covalence UAT'
-  stack_item_label: 'uat'
+  stack_item_label: "%{hiera('env_label')}"
   vpc_cidr: '172.16.0.0/21'
 
 ## Module & State
@@ -13,5 +15,5 @@ vpc::module: 'terraform/vpc'
 vpc::state:
   - s3:
       bucket: "%{hiera('s3_state_bucket')}"
-      name: "%{environment}/%{stack}"
+      name: "%{environment}/%{stack}-%{hiera('env_label')}"
       region: "%{hiera('region')}"

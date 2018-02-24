@@ -413,6 +413,7 @@ jobs:
               ${CI_REGISTRY}:latest-node &
             sleep 10
             docker start uat
+            sed -i "s/uat/uat2/" tools/covalence/uat/data/stacks/vpc.yaml
             docker cp tools/covalence/uat/. uat:/data
             docker exec uat sh -c 'bundle exec rake ci'
             docker exec uat sh -c 'bundle exec rake uat:apply'
