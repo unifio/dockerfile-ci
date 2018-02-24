@@ -15,17 +15,24 @@ RUN set -ex; \
   \
   fetchDeps=' \
     build-base \
+    bzip2 \
     ca-certificates \
     curl-dev \
     gnupg \
+    libffi-dev \
+    libressl-dev \
     openssl \
+    procps \
     python-dev \
     ruby \
     ruby-bundler \
     ruby-dev \
     ruby-io-console \
+    ruby-json \
     unzip \
     wget \
+    yaml-dev \
+    zlib-dev \
   '; \
   apk add --no-cache --update $fetchDeps && \
   \
@@ -80,6 +87,7 @@ RUN set -ex; \
   fetchDeps=' \
     bash \
     build-base \
+    bzip2 \
     ca-certificates \
     curl \
     curl-dev \
@@ -89,17 +97,23 @@ RUN set -ex; \
     groff \
     jq \
     less \
+    libffi-dev \
+    libressl-dev \
     mercurial \
     openssl \
     openssh \
+    procps \
     python-dev \
     ruby \
     ruby-bundler \
     ruby-dev \
     ruby-io-console \
+    ruby-json \
     tar \
     unzip \
     wget \
+    yaml-dev \
+    zlib-dev \
   '; \
   apk add --no-cache --update $fetchDeps && \
   \
