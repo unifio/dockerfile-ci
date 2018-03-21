@@ -15,7 +15,7 @@ common: &common
     PACKER_VERSION: '1.1.3'
     RUBY_VERSION: '2.4'
     TERRAFORM_REGISTRY: 'unifio/terraform'
-    TERRAFORM_VERSION: '0.11.4'
+    TERRAFORM_VERSION: '0.11.5'
 
 version: 2
 jobs:
