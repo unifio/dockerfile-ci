@@ -79,6 +79,8 @@ test:
   override:
     - docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "gem list | grep covalence"
     - docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "aws --version"
+    - docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /usr/local/bin/terraform-providers"
+    - docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /aws/.terraform.d/plugins"
     - >
       if grep -q packer ~/.allbinaries; then
         docker run -e CHECKPOINT_DISABLE=1 \

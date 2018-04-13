@@ -32,6 +32,8 @@ RUN mkdir -p /tmp/build && \
 COPY pkr_files/packer* /usr/local/bin/
 COPY tf_files/terraform* /usr/local/bin/
 COPY tf_provider_files/ /usr/local/bin/terraform-providers/linux_amd64
+# This assumes that /aws will be the HOME directory
+COPY 3rd_party_tf_provider_files/ /aws/.terraform.d/plugins
 COPY other_bins/* /usr/local/bin/
 ADD node_files.tar.gz /
 
