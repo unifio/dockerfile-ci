@@ -74,7 +74,7 @@ EOM
     echo "Running the ${binaryToInstall} container and naming it if it hasn't been already."
     containerName=terraform
     docker run --name "${containerName}" "${tf_image}":"${tf_version}" version 2>/dev/null
-    # veirfy that the container ran and grab its ID
+    # verify that the container ran and grab its ID
     matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
                 --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
     echo "Terraform container ran ${matchingStarted}"
@@ -89,13 +89,14 @@ EOM
     echo "Running the ${binaryToInstall} container and naming it if it hasn't been already."
     containerName=terraform-providers
     docker run --name "${containerName}" "${tf_provider_image}":"${tf_provider_version}" version 2>/dev/null
-    # veirfy that the container ran and grab its ID
+    # verify that the container ran and grab its ID
     matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
                 --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
     echo "Terraform provider container ran ${matchingStarted}"
     if [[ $matchingStarted ]];then
       echo "Copying binaries.."
       docker cp ${containerName}:/usr/local/bin/terraform-providers/ tf_provider_files
+      docker cp ${containerName}:/aws/.terraform.d/plugins/ 3rd_party_tf_provider_files
     fi
   fi
   # now take care of the packer files
@@ -103,7 +104,7 @@ EOM
     echo "Running the packer container and naming it if it hasn't been already."
     containerName=packer
     docker run --name "${containerName}" "${pkr_image}":"${pkr_version}" version 2>/dev/null
-    # veirfy that the container ran and grab its ID
+    # verify that the container ran and grab its ID
     matchingStarted=$(docker ps -lqa --filter="name=${containerName}${containerSuffix}" \
                 --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
     echo "packer container ran ${matchingStarted}"
