@@ -3,7 +3,7 @@
 dockerRepo=${DOCKER_REPO:-$1}
 dockerRegistry=${DOCKER_REGISTRY:-docker.io}
 jsonParser=$(which jq)
-tagWanted=${DOCKER_BIN_TAG:-"node-2.0.0"}
+tagWanted=${DOCKER_BIN_TAG}
 #
 #  Docker funcs
 #
