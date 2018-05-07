@@ -83,6 +83,6 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag -f "${CI_IMAGE_NAME}:latest" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
+              docker tag "${CI_IMAGE_NAME}:latest" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
               docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
             fi
