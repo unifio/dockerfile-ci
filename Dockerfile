@@ -7,6 +7,10 @@ ENV PACKER_VERSION 1.1.0
 RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
+    wget -q "https://circle-artifacts.com/gh/unifio/packer-post-processor-vagrant-s3/22/artifacts/0/home/ubuntu/.go_workspace/bin/packer-post-processor-vagrant-s3" && \
+    wget -q "https://circle-artifacts.com/gh/unifio/packer-provisioner-serverspec/26/artifacts/0/home/ubuntu/.go_workspace/bin/packer-provisioner-serverspec" && \
+    chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
+    mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_SHA256SUMS" && \
     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_SHA256SUMS.sig" && \
