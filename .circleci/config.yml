@@ -35,20 +35,6 @@ jobs:
           name: docker login
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
-          name: Copy Terraform
-          command: |
-            if [[ $(DOCKER_BIN_TAG="${TERRAFORM_VERSION_TAG}" ./tagexists.sh ${TF_IMAGE}) == "1" ]];then
-              ./copybins.sh terraform && \
-              echo terraform >> ~/.allbinaries
-            fi
-      - run:
-          name: Copy Packer
-          command: |
-            if [[ $(DOCKER_BIN_TAG="${PACKER_VERSION_TAG}" ./tagexists.sh ${PKR_IMAGE}) == "1" ]];then
-              ./copybins.sh packer && \
-              echo packer >> ~/.allbinaries
-            fi
-      - run:
           name: Load docker image
           command: |
             if [[ -e ~/docker/image.tar ]]; then
@@ -65,19 +51,12 @@ jobs:
       - run:
           name: Execute acceptance test
           command: |
-            cat ~/.allbinaries
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "gem list | grep covalence"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "aws --version"
+            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
+            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "terraform version"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /usr/local/bin/terraform-providers/linux_amd64"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /aws/.terraform.d/plugins"
-            if grep -q packer ~/.allbinaries; then
-              docker run -e CHECKPOINT_DISABLE=1 \
-                --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
-            fi
-            if grep -q terraform ~/.allbinaries; then
-              docker run -e CHECKPOINT_DISABLE=1 \
-                --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "terraform version"
-            fi
       - deploy:
           name: Register CI image
           command: |
