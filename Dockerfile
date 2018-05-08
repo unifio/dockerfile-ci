@@ -1,6 +1,6 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-FROM alpine:3.5 as packer
+FROM alpine:3.7 as packer
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 ENV PACKER_VERSION 1.1.0
 
@@ -18,7 +18,7 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     cd /tmp && \
     rm -rf /tmp/build
 
-FROM alpine:3.5 as terraform
+FROM alpine:3.7 as terraform
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 ENV TERRAFORM_VERSION 0.10.7
 
@@ -32,7 +32,7 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     cd /tmp && \
     rm -rf /tmp/build
 
-FROM alpine:3.7 as provider
+FROM alpine:3.7 as terraform_providers
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
 # Loop through the list of providers that we want to include
@@ -92,7 +92,8 @@ LABEL terraform_version="0.10.7"
 
 # Install glibc, PIP, AWS CLI and Misc. Ruby tools
 # TODO - postgresql-client is hopefully temporary, see DEVOPS-1844
-RUN mkdir -p /tmp/build && \
+RUN mkdir -p /usr/local/bin && \
+    mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget -q -O /etc/apk/keys/sgerrand.rsa.pub "https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub" && \
     wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk" && \
@@ -110,7 +111,7 @@ RUN mkdir -p /tmp/build && \
 # Copy required binaries from previous build stages
 COPY --from=packer /usr/local/bin/packer* /usr/local/bin
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
-COPY --from=provider /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
+COPY --from=terraform_providers/provider /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
 # This assumes that /aws will be the HOME directory
 COPY --from=provider /aws/.terraform.d/plugins/ /aws/.terraform.d/plugins
 
