@@ -109,9 +109,9 @@ RUN mkdir -p /usr/local/bin && \
     rm -rf /tmp/build
 
 # Copy required binaries from previous build stages
-COPY --from=packer /usr/local/bin/packer* /usr/local/bin
+COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
-COPY --from=terraform_providers/provider /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
+COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
 # This assumes that /aws will be the HOME directory
 COPY --from=provider /aws/.terraform.d/plugins/ /aws/.terraform.d/plugins
 
