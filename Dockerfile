@@ -113,7 +113,7 @@ COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
 COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
 # This assumes that /aws will be the HOME directory
-COPY --from=provider /aws/.terraform.d/plugins/ /aws/.terraform.d/plugins
+COPY --from=terraform_providers /aws/.terraform.d/plugins/ /aws/.terraform.d/plugins
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
