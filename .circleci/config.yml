@@ -56,7 +56,6 @@ jobs:
             docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
             docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "terraform version"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /usr/local/bin/terraform-providers/linux_amd64"
-            docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /aws/.terraform.d/plugins"
       - deploy:
           name: Register CI image
           command: |
