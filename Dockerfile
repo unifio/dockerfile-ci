@@ -20,7 +20,7 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
 
 FROM alpine:3.7 as terraform
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
-ENV TERRAFORM_VERSION 0.10.8
+ENV TERRAFORM_VERSION 0.11.7
 
 RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     mkdir -p /tmp/build && \
