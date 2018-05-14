@@ -5,7 +5,6 @@ services:
       context: ./tools/covalence
       args:
         covalence_version: $COVALENCE_VERSION
-        gemfury_token: $GEMFURY_TOKEN
     image: "${COVALENCE_REGISTRY:-unifio/covalence}"
   packer:
     build:
@@ -27,9 +26,9 @@ services:
         alpine_version: $ALPINE_VERSION
         covalence_version: $COVALENCE_VERSION
         dumbinit_version: $DUMBINIT_VERSION
-        gemfury_token: $GEMFURY_TOKEN
         gosu_version: $GOSU_VERSION
         ruby_version: $RUBY_VERSION
+        sops_version: $SOPS_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest"
     depends_on:
       - packer
@@ -41,9 +40,9 @@ services:
       args:
         covalence_version: $COVALENCE_VERSION
         dumbinit_version: $DUMBINIT_VERSION
-        gemfury_token: $GEMFURY_TOKEN
         gosu_version: $GOSU_VERSION
         node_version: $NODE_VERSION
+        sops_version: $SOPS_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest-node"
     depends_on:
       - packer
