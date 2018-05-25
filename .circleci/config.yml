@@ -38,7 +38,7 @@ jobs:
               docker-compose
       - restore_cache:
           keys:
-            - dock1-cov-layer-cache-{{ .Branch }}
+            - dock2-cov-layer-cache-{{ .Branch }}
       - run:
           name: Load Docker image layer cache
           command: |
@@ -76,7 +76,7 @@ jobs:
             docker save $(docker images -aq) > /caches/cov.tar
             docker save unifio/covalence > /workspace/cov.tar
       - save_cache:
-          key: dock1-cov-layer-cache-{{ .Branch }}-{{ checksum "/caches/cov.tar" }}
+          key: dock2-cov-layer-cache-{{ .Branch }}-{{ checksum "/caches/cov.tar" }}
           paths:
             - /caches/cov.tar
       - deploy:
@@ -111,7 +111,7 @@ jobs:
               docker-compose
       - restore_cache:
           keys:
-            - dock1-tf-layer-cache-{{ .Branch }}
+            - dock2-tf-layer-cache-{{ .Branch }}
       - run:
           name: Load Docker image layer cache
           command: |
@@ -146,7 +146,7 @@ jobs:
             docker save $(docker images -aq) > /caches/tf.tar
              docker save unifio/terraform > /workspace/tf.tar
       - save_cache:
-          key: dock1-tf-layer-cache-{{ .Branch }}-{{ checksum "/caches/tf.tar" }}
+          key: dock2-tf-layer-cache-{{ .Branch }}-{{ checksum "/caches/tf.tar" }}
           paths:
             - /caches/tf.tar
       - deploy:
@@ -181,7 +181,7 @@ jobs:
               docker-compose
       - restore_cache:
           keys:
-            - dock1-pkr-layer-cache-{{ .Branch }}
+            - dock2-pkr-layer-cache-{{ .Branch }}
       - run:
           name: Load Docker image layer cache
           command: |
@@ -214,7 +214,7 @@ jobs:
             docker save $(docker images -aq) > /caches/pkr.tar
             docker save unifio/packer > /workspace/pkr.tar
       - save_cache:
-          key: dock1-pkr-layer-cache-{{ .Branch }}-{{ checksum "/caches/pkr.tar" }}
+          key: dock2-pkr-layer-cache-{{ .Branch }}-{{ checksum "/caches/pkr.tar" }}
           paths:
             - /caches/pkr.tar
       - deploy:
@@ -265,7 +265,7 @@ jobs:
           at: /workspace
       - restore_cache:
           keys:
-            - dock1-ci-infra-layer-cache-{{ .Branch }}
+            - dock2-ci-infra-layer-cache-{{ .Branch }}
       - restore_cache:
           keys:
             - gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
@@ -318,7 +318,7 @@ jobs:
             docker images -a
             docker save $(docker images -aq) > /caches/ci-infra.tar
       - save_cache:
-          key: dock1-ci-infra-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-infra.tar" }}
+          key: dock2-ci-infra-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-infra.tar" }}
           paths:
             - /caches/ci-infra.tar
       - save_cache:
@@ -371,7 +371,7 @@ jobs:
           at: /workspace
       - restore_cache:
           keys:
-            - dock1-ci-node-layer-cache-{{ .Branch }}
+            - dock2-ci-node-layer-cache-{{ .Branch }}
       - restore_cache:
           keys:
             - gem1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
@@ -425,7 +425,7 @@ jobs:
             docker images -a
             docker save $(docker images -aq) > /caches/ci-node.tar
       - save_cache:
-          key: dock1-ci-node-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-node.tar" }}
+          key: dock2-ci-node-layer-cache-{{ .Branch }}-{{ checksum "/caches/ci-node.tar" }}
           paths:
             - /caches/ci-node.tar
       - save_cache:
