@@ -122,3 +122,6 @@ COPY --from=terraform_providers /aws/.terraform.d/plugins/ /usr/local/bin/terraf
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
