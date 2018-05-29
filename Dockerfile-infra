@@ -4,17 +4,19 @@ FROM ruby:${ruby_version}-alpine${alpine_version}
 
 ARG covalence_version
 ARG dumbinit_version
-ARG gemfury_token
 ARG gosu_version
+ARG sops_version
 
 ENV COVALENCE_VERSION $covalence_version
 ENV DUMBINIT_VERSION $dumbinit_version
 ENV GOSU_VERSION $gosu_version
 ENV GOSU_KEY B42F6819007F00F88E364FD4036A9C25BF357DD4
+ENV SOPS_VERSION $sops_version
 
 RUN set -ex; \
   \
   fetchDeps=' \
+    ansible \
     build-base \
     ca-certificates \
     curl-dev \
@@ -41,7 +43,11 @@ RUN set -ex; \
   \
   # Dumb-init
   wget -O /tmp/build/dumb-init "https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64"; \
-  chmod +x dumb-init
+  chmod +x dumb-init; \
+  \
+  # Sops
+  wget -O /tmp/build/sops "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux"; \
+  chmod +x sops;
 
 COPY tools/covalence/Gemfile /tmp/build
 COPY tools/covalence/Gemfile.lock /tmp/build
@@ -52,14 +58,12 @@ RUN set -ex; \
   cd /tmp/build && \
   \
   # Ruby Gems
-  bundle config https://gem.fury.io/unifio/ $gemfury_token && \
   bundle install --path=/opt/gems --jobs=4 --retry=3
 
 FROM ruby:${ruby_version}-alpine${alpine_version}
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 ARG covalence_version
-ARG gemfury_token
 
 ENV COVALENCE_VERSION $covalence_version
 ENV BUNDLE_GEMFILE /opt/Gemfile
@@ -108,10 +112,11 @@ RUN set -ex; \
   # Install PIP packages
   curl -O https://bootstrap.pypa.io/get-pip.py && \
   python get-pip.py && \
-  pip install awscli docker-compose && \
+  pip install \
+    awscli \
+    docker-compose && \
   \
   # Install gem packages
-  bundle config https://gem.fury.io/unifio/ $gemfury_token && \
   bundle check --gemfile=/opt/Gemfile --path=/opt/gems || bundle install --gemfile=/opt/Gemfile --path=/opt/gems --jobs=4 --retry=3 && \
   \
   # Cleanup

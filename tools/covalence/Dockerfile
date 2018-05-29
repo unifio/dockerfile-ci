@@ -6,7 +6,6 @@ LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 ENV DOCKER_BASE_VERSION=0.0.4
 
 ARG covalence_version
-ARG gemfury_token
 
 ENV COVALENCE_VERSION $covalence_version
 ENV HASHI_KEY_URL https://keybase.io/hashicorp/key.asc
@@ -45,7 +44,7 @@ RUN set -ex; \
   cp bin/dumb-init /usr/local/bin && \
 
   # Covalence
-  gem install covalence -v $COVALENCE_VERSION --source "https://${gemfury_token}@gem.fury.io/unifio/" --no-ri --no-rdoc && \
+  gem install covalence -v $COVALENCE_VERSION --no-ri --no-rdoc && \
   gem install dotenv serverspec --no-ri --no-rdoc && \
   gem install rspec ci_reporter_rspec --no-ri --no-rdoc && \
 
