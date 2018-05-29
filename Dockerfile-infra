@@ -16,7 +16,6 @@ ENV SOPS_VERSION $sops_version
 RUN set -ex; \
   \
   fetchDeps=' \
-    ansible \
     build-base \
     ca-certificates \
     curl-dev \
@@ -79,6 +78,7 @@ COPY --from=0 /opt/gems /opt/gems
 RUN set -ex; \
   \
   fetchDeps=' \
+    ansible \
     bash \
     build-base \
     ca-certificates \
