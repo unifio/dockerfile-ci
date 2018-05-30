@@ -80,6 +80,7 @@ ENV BUNDLE_PATH /opt/gems
 
 COPY --from=0 /tmp/build/gosu /usr/local/bin/
 COPY --from=0 /tmp/build/dumb-init /usr/local/bin/
+COPY --from=0 /tmp/build/sops /usr/local/bin/
 COPY --from=0 /tmp/build/Gemfile /opt/
 COPY --from=0 /tmp/build/Gemfile.lock /opt/
 COPY --from=0 /tmp/build/.gemrc /opt/
