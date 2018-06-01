@@ -7,7 +7,7 @@ common: &common
     CI_REGISTRY: 'unifio/ci'
     CI_MAJOR_VERSION: '3'
     COVALENCE_REGISTRY: 'unifio/covalence'
-    COVALENCE_VERSION: '0.8.0'
+    COVALENCE_VERSION: '0.8.1'
     DUMBINIT_VERSION: '1.2.1'
     GOSU_VERSION: '1.10'
     NODE_VERSION: '8.9.4'
