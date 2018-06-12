@@ -92,9 +92,6 @@ LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 LABEL packer_version="${PACKER_VERSION}"
 LABEL terraform_version="${TERRAFORM_VERSION}"
 
-ENV BUNDLE_GEMFILE /opt/Gemfile
-COPY config/Gemfile /opt/Gemfile
-
 # Install glibc, PIP, AWS CLI and Misc. Ruby tools
 # TODO - postgresql-client is hopefully temporary, see DEVOPS-1844
 RUN mkdir -p /usr/local/bin && \
@@ -109,8 +106,7 @@ RUN mkdir -p /usr/local/bin && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
     pip install awscli && \
-    gem install terraform_landscape --no-ri --no-rdoc && \
-    bundle install && \
+    gem install awesome_print consul_loader terraform_landscape thor --no-ri --no-rdoc && \
     cd /tmp && \
     rm -rf /tmp/build
 
