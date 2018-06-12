@@ -35,9 +35,10 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
 FROM alpine:3.7 as terraform_providers
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
+RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip
+
 # Loop through the list of providers that we want to include
-RUN apk add --no-cache --update ca-certificates gnupg openssl git mercurial wget unzip && \
-    mkdir -p /usr/local/bin/terraform-providers && \
+RUN mkdir -p /usr/local/bin/terraform-providers && \
     for provider in \
     aws:0.1.4 \
     aws:1.10.0 \
@@ -67,21 +68,22 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl git mercurial wget
         rm -rf /tmp/build \
     ; done
 
-# Install 3rd party providers - eventually these should come from https://registry.terraform.io/
+# Install 3rd party providers forked from open source - eventually these should come from https://registry.terraform.io/
 # See https://github.com/hashicorp/terraform/issues/17154
 # and
 # https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
-# and
-# https://github.com/WhistleLabs/terraform-provider-cloudamqp
-RUN mkdir -p /aws/.terraform.d/plugins && \
-    for provider_url in \
-    https://github.com/WhistleLabs/terraform-provider-cloudamqp/releases/download/v.0.0.1/terraform-provider-cloudamqp.zip; do \
-        echo "Installing 3rd party provider from ${provider_url}" && \
+RUN mkdir -p /usr/local/bin/terraform-providers && \
+    for provider in \
+       cloudamqp:0.0.1 \
+       nrs:0.1.0; do \
+        prov_name=`echo $provider | cut -d: -f1` && \
+        prov_ver=`echo $provider | cut -d: -f2` && \
+        echo "Installing 3rd party provider ${prov_name} version ${prov_ver}" && \
         mkdir -p /tmp/build && \
         cd /tmp/build && \
-        wget -q "${provider_url}" && \
-        unzip -d /aws/.terraform.d/plugins terraform-provider-*.zip && \
-        ls -l /aws/.terraform.d/plugins && \
+        wget -q "https://github.com/WhistleLabs/terraform-provider-${prov_name}/releases/download/v.${prov_ver}/terraform-provider-${prov_name}.zip" && \
+        unzip -d /usr/local/bin/terraform-providers terraform-provider-${prov_name}.zip && \
+        ls -l /usr/local/bin/terraform-providers && \
         cd /tmp && \
         rm -rf /tmp/build \
     ; done
@@ -114,7 +116,6 @@ RUN mkdir -p /usr/local/bin && \
 COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
 COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
-COPY --from=terraform_providers /aws/.terraform.d/plugins/ /usr/local/bin/terraform-providers/linux_amd64
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
