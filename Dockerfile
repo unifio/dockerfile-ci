@@ -75,7 +75,8 @@ RUN mkdir -p /usr/local/bin/terraform-providers && \
 RUN mkdir -p /usr/local/bin/terraform-providers && \
     for provider in \
        cloudamqp:0.0.1 \
-       nrs:0.1.0; do \
+       nrs:0.1.0 \
+       sentry:0.4.0; do \
         prov_name=`echo $provider | cut -d: -f1` && \
         prov_ver=`echo $provider | cut -d: -f2` && \
         echo "Installing 3rd party provider ${prov_name} version ${prov_ver}" && \
