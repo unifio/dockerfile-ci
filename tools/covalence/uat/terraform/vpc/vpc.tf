@@ -20,7 +20,7 @@ provider "aws" {
 
 ## Configures base VPC
 module "vpc_base" {
-  source = "github.com/unifio/terraform-aws-vpc?ref=v0.3.2//base"
+  source = "github.com/unifio/terraform-aws-vpc?ref=v0.3.8//base"
 
   stack_item_label    = "${var.stack_item_label}"
   stack_item_fullname = "${var.stack_item_fullname}"
