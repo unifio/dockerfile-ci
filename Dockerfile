@@ -89,7 +89,7 @@ RUN mkdir -p /usr/local/bin/terraform-providers && \
         rm -rf /tmp/build \
     ; done
 
-FROM unifio/covalence:0.7.8
+FROM unifio/covalence:0.8.3
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
 LABEL packer_version="${PACKER_VERSION}"
