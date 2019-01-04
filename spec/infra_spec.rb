@@ -66,6 +66,7 @@ describe 'Infrastructure CI Configuration' do
       ruby-dev
       tar
       unzip
+      zip
       wget
     )
 

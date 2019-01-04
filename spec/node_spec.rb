@@ -49,8 +49,8 @@ describe 'Node.js CI Configuration' do
     end
 
     describe command('/usr/local/bin/gosu --version') do
-      its(:exit_status) { should eq 1 }
-      its(:stderr) { should match /.*gosu version: #{ENV['GOSU_VERSION']}*/ }
+      its(:exit_status) { should eq 0 }
+      its(:stdout) { should match /.*#{ENV['GOSU_VERSION']}*/ }
     end
 
     describe command('/usr/local/bin/dumb-init --version') do
@@ -81,6 +81,7 @@ describe 'Node.js CI Configuration' do
       ruby-dev
       ruby-io-console
       tar
+      zip
       unzip
       wget
     )
