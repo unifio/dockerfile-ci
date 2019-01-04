@@ -65,7 +65,7 @@ RUN set -ex; \
   \
   chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
   mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
-  gem install io-console bundler rake rspec serverspec --no-ri --no-rdoc && \
+  gem install io-console bundler rake rspec serverspec --no-document  && \
   \
   cd / && \
   rm -rf /tmp/build

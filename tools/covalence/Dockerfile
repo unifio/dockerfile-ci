@@ -44,9 +44,9 @@ RUN set -ex; \
   cp bin/dumb-init /usr/local/bin && \
 
   # Covalence
-  gem install covalence -v $COVALENCE_VERSION --no-ri --no-rdoc && \
-  gem install dotenv serverspec --no-ri --no-rdoc && \
-  gem install rspec ci_reporter_rspec --no-ri --no-rdoc && \
+  gem install covalence -v $COVALENCE_VERSION --no-document  && \
+  gem install dotenv serverspec --no-document  && \
+  gem install rspec ci_reporter_rspec --no-document  && \
 
   # Cleanup
   cd /tmp && \
