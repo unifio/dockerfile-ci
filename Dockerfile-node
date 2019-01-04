@@ -116,6 +116,7 @@ RUN set -ex; \
     ruby-json \
     tar \
     unzip \
+    zip \
     wget \
     yaml-dev \
     zlib-dev \

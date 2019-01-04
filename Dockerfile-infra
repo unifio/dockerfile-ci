@@ -98,6 +98,7 @@ RUN set -ex; \
     ruby-dev \
     tar \
     unzip \
+    zip \
     wget \
   '; \
   apk add --no-cache --update $fetchDeps && \
