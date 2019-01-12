@@ -40,6 +40,7 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip
 # Loop through the list of providers that we want to include
 RUN mkdir -p /usr/local/bin/terraform-providers && \
     for provider in \
+    archive:1.1.0 \
     aws:0.1.4 \
     aws:1.10.0 \
     aws:1.49.0 \
@@ -109,7 +110,7 @@ RUN mkdir -p /usr/local/bin && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
     pip install awscli && \
-    gem install awesome_print consul_loader terraform_landscape thor --no-ri --no-rdoc && \
+    gem install awesome_print consul_loader terraform_landscape thor --no-document && \
     cd /tmp && \
     rm -rf /tmp/build
 
