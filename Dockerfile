@@ -52,7 +52,7 @@ RUN mkdir -p /usr/local/bin/terraform-providers && \
     logentries:0.1.0 \
     newrelic:1.2.0 \
     null:1.0.0 \
-    pagerduty:1.1.0 \
+    pagerduty:1.2.1 \
     rabbitmq:0.2.0 \
     template:0.1.0; do \
         prov_name=`echo $provider | cut -d: -f1` && \
