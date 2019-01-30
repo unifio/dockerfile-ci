@@ -44,7 +44,6 @@ RUN mkdir -p /usr/local/bin/terraform-providers && \
     aws:0.1.4 \
     aws:1.10.0 \
     aws:1.49.0 \
-    consul:0.1.0 \
     datadog:0.1.1 \
     github:0.1.1 \
     google:0.1.3 \
@@ -110,7 +109,7 @@ RUN mkdir -p /usr/local/bin && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
     pip install awscli && \
-    gem install awesome_print consul_loader terraform_landscape thor --no-document && \
+    gem install awesome_print thor --no-document && \
     cd /tmp && \
     rm -rf /tmp/build
 
