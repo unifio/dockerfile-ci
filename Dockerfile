@@ -49,7 +49,7 @@ RUN mkdir -p /usr/local/bin/terraform-providers && \
     google:0.1.3 \
     heroku:0.1.0 \
     logentries:0.1.0 \
-    newrelic:1.2.0 \
+    newrelic:1.3.0 \
     null:1.0.0 \
     pagerduty:1.2.1 \
     rabbitmq:0.2.0 \
