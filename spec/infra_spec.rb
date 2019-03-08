@@ -6,7 +6,6 @@ describe 'Infrastructure CI Configuration' do
     # Verify /usr/local/bin additions
     @usr_local_binaries = %w(
       bundle
-      bundler
       dumb-init
       entrypoint.sh
       gem
