@@ -3,3 +3,4 @@ tf_files/**
 node_files.tar.gz
 node_files
 .idea/*
+/.gtm/
