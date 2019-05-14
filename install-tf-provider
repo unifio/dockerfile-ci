@@ -87,15 +87,15 @@ install-provider() {
 	local prov_build_dir="$build_dir/${name}-v${full_ver}"
 	mkdir -pv "$prov_build_dir"
 
-	e "[$name:$ver] Downloading provider: uri=$uri ==> zip_absfn=$zip_absfn"
+	e "[$name:$full_ver] Downloading provider: uri=$uri ==> zip_absfn=$zip_absfn"
 	curl -sSLfo "$zip_absfn" "$uri"
 
-	e "[$name:$ver] Extracting provider"
+	e "[$name:$full_ver] Extracting provider"
 	unzip -d "$prov_build_dir" "$zip_absfn"
 
 	local prov_fn="terraform-provider-${name}_v${ver}_x4"
 
-	e "[$name:$ver] Installing provider (prov_fn=$prov_fn)"
+	e "[$name:$full_ver] Installing provider (prov_fn=$prov_fn)"
 	mkdir -pv "$plugin_dir/$arch"
 	find "$prov_build_dir" \
 		-type f \
