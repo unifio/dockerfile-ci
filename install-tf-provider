@@ -1,0 +1,127 @@
+#!/bin/bash
+set -eo pipefail
+shopt -s nullglob
+# set -xv
+set -v
+
+#
+# output
+#
+
+SELF="${0##*/}"
+
+function _script_echo   { echo "[$(date)] $SELF[$$]" "${@:2}" "#$1" >&2; }
+function debug          { [[ -z "$DEBUG" ]] || _script_echo DEBUG "$@"; }
+function e              { [[ -n "$QUIET" ]] || _script_echo INFO "$@"; }
+function info           { e "$@"; }
+function warn           { [[ -n "$QUIET" ]] || _script_echo WARNING "$@"; }
+function warning        { warn "$@"; }
+function error          { _script_echo ERROR "$@" >&2; }
+function death          { error "$@"; exit 1; }
+function debug_call     { debug 'call:' "$@"; "$@"; }
+function nullify		{ "$@" >/dev/null 2>&1; }
+
+
+#
+# vars
+#
+
+: ${uri_template:='https://releases.hashicorp.com/terraform-provider-${name}/${ver}/terraform-provider-${name}_${ver}_${arch}.zip'}
+
+: ${plugin_dir:=${TF_PLUGIN_CACHE_DIR:-'/usr/local/bin/terraform-providers'}}
+
+: ${arch:='linux_amd64'}
+: ${build_dir:='/tmp/build'}
+
+
+#
+# helpers
+#
+
+templatize() {
+	local template="${1:?}"
+	local -n kw="${2:?}"
+
+	local val="$template"
+
+	local k from to
+	for k in "${!kw[@]}"; do
+		to="${kw[$k]}"
+		from="\${$k}"
+
+		val="${val//$from/$to}"
+	done
+
+	echo "$val"
+
+	[[ -n "$val" ]]
+}
+
+
+#
+# meat
+#
+
+install-provider() {
+	local arch="${1:?}" name="${2:?}" full_ver="${3:?}"
+	: ${build_dir:?} ${uri_template:?}
+
+	# tf doesn't support anything but plain semver it seems.
+	# iow: `1.0.0-whistle0` => `1.0.0`
+	local ver="${full_ver%%-*}"
+
+	# kwargs to use in templating our uri.
+	local -A vars=(
+		[arch]="$arch"
+		[name]="$name"
+		[ver]="$ver"
+		[full_ver]="$full_ver"
+	)
+
+	local uri=$(templatize "$uri_template" vars)
+	: ${uri:?}
+
+	local zip_basefn="${uri##*/}"
+	local zip_absfn="${build_dir:?}/${zip_basefn:?}"
+
+	local prov_build_dir="$build_dir/${name}-v${full_ver}"
+	mkdir -pv "$prov_build_dir"
+
+	e "[$name:$ver] Downloading provider: uri=$uri ==> zip_absfn=$zip_absfn"
+	curl -sSLfo "$zip_absfn" "$uri"
+
+	e "[$name:$ver] Extracting provider"
+	unzip -d "$prov_build_dir" "$zip_absfn"
+
+	local prov_fn="terraform-provider-${name}_v${ver}_x4"
+
+	e "[$name:$ver] Installing provider (prov_fn=$prov_fn)"
+	mkdir -pv "$plugin_dir/$arch"
+	find "$prov_build_dir" \
+		-type f \
+		-perm +007 \
+		-name "$prov_fn" \
+		-exec \
+			mv -v '{}' "$plugin_dir/$arch/" \;
+
+	[[ -e "$plugin_dir/$arch/terraform-provider-${name}_v${ver}_x4" ]]
+}
+
+main() {
+	local prov name ver
+	for prov in "$@"; do
+		name="${prov%%:*}" ver="${prov#*:}"
+
+		install-provider "$arch" "$name" "$ver"
+	done
+
+	# This is done here and not via a trap to leave the build dir on failure
+	on_exit
+}
+
+on_exit() {
+	rm -rf "$build_dir"
+}
+
+main "$@"
+

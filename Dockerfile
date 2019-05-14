@@ -12,22 +12,18 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
     mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
-    wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_SHA256SUMS" && \
-    wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_SHA256SUMS.sig" && \
     unzip -d /usr/local/bin packer_${PACKER_VERSION}_linux_amd64.zip && \
     cd /tmp && \
     rm -rf /tmp/build
 
 FROM alpine:3.7 as terraform
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
-ENV TERRAFORM_VERSION 0.11.7
+ENV TERRAFORM_VERSION 0.12.0-beta2
 
 RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
-    wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" && \
-    wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS.sig" && \
     unzip -d /usr/local/bin terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     cd /tmp && \
     rm -rf /tmp/build
@@ -35,57 +31,42 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
 FROM alpine:3.7 as terraform_providers
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
-RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip
+RUN apk add --no-cache --update ca-certificates gnupg openssl unzip bash curl
+
+WORKDIR /tmp/build
+COPY install-tf-provider /usr/local/bin/
 
 # Loop through the list of providers that we want to include
-RUN mkdir -p /usr/local/bin/terraform-providers && \
-    for provider in \
-    archive:1.2.2 \
-    aws:2.9.0 \
-    datadog:1.8.0 \
-    github:2.0.0 \
-    google:2.5.1 \
-    heroku:1.9.0 \
-    logentries:1.0.0 \
-    newrelic:1.5.0 \
-    null:2.1.2 \
-    pagerduty:1.2.1 \
-    rabbitmq:1.0.0 \
-    template:2.1.2; do \
-        prov_name=`echo $provider | cut -d: -f1` && \
-        prov_ver=`echo $provider | cut -d: -f2` && \
-        echo "Installing provider ${prov_name} version ${prov_ver}" && \
-        mkdir -p /tmp/build && \
-        cd /tmp/build && \
-        wget -q "https://releases.hashicorp.com/terraform-provider-${prov_name}/${prov_ver}/terraform-provider-${prov_name}_${prov_ver}_linux_amd64.zip" && \
-        wget -q "https://releases.hashicorp.com/terraform-provider-${prov_name}/${prov_ver}/terraform-provider-${prov_name}_${prov_ver}_SHA256SUMS" && \
-        wget -q "https://releases.hashicorp.com/terraform-provider-${prov_name}/${prov_ver}/terraform-provider-${prov_name}_${prov_ver}_SHA256SUMS.sig" && \
-        unzip -d /usr/local/bin/terraform-providers terraform-provider-${prov_name}_${prov_ver}_linux_amd64.zip && \
-        ls -l /usr/local/bin/terraform-providers && \
-        cd /tmp && \
-        rm -rf /tmp/build \
-    ; done
+RUN set -exv \
+ && install-tf-provider \
+        archive:1.2.2 \
+        aws:2.10.0 \
+        github:2.0.0 \
+        google:2.5.1 \
+        newrelic:1.5.0 \
+        null:2.1.2 \
+        template:2.1.2 \
+ && :
 
 # Install 3rd party providers forked from open source - eventually these should come from https://registry.terraform.io/
 # See https://github.com/hashicorp/terraform/issues/17154
 # and
 # https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
-RUN mkdir -p /usr/local/bin/terraform-providers && \
-    for provider in \
-       cloudamqp:0.0.1 \
-       nrs:0.1.0 \
-       sentry:0.4.0; do \
-        prov_name=`echo $provider | cut -d: -f1` && \
-        prov_ver=`echo $provider | cut -d: -f2` && \
-        echo "Installing 3rd party provider ${prov_name} version ${prov_ver}" && \
-        mkdir -p /tmp/build && \
-        cd /tmp/build && \
-        wget -q "https://github.com/WhistleLabs/terraform-provider-${prov_name}/releases/download/v.${prov_ver}/terraform-provider-${prov_name}.zip" && \
-        unzip -d /usr/local/bin/terraform-providers terraform-provider-${prov_name}.zip && \
-        ls -l /usr/local/bin/terraform-providers && \
-        cd /tmp && \
-        rm -rf /tmp/build \
-    ; done
+
+# Loop through the list of providers that we want to include
+RUN set -exv \
+ && export uri_template='https://github.com/WhistleLabs/terraform-provider-${name}/releases/download/v${full_ver}/terraform-provider-${name}_${ver}_${arch}.zip' \
+ && install-tf-provider \
+    atlas:0.1.0-whistle0-tf012 \
+    cloudamqp:0.0.1-whistle0-tf012 \
+    datadog:1.9.0-whistle0-tf012 \
+    heroku:1.9.0-whistle0-tf012 \
+    logentries:1.0.0-whistle0-tf012 \
+    nrs:0.1.0-whistle0-tf012 \
+    pagerduty:1.2.1-whistle0-tf012 \
+    rabbitmq:1.0.0-whistle0-tf012 \
+    sentry:0.4.0-whistle0-tf012 \
+ && :
 
 FROM unifio/covalence:0.8.3
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
