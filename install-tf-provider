@@ -94,15 +94,16 @@ install-provider() {
 	unzip -d "$prov_build_dir" "$zip_absfn"
 
 	local prov_fn="terraform-provider-${name}_v${ver}_x4"
+	local dst="$plugin_dir/$arch"
 
 	e "[$name:$full_ver] Installing provider (prov_fn=$prov_fn)"
-	mkdir -pv "$plugin_dir/$arch"
+	mkdir -pv "$dst"
 	find "$prov_build_dir" \
 		-type f \
 		-perm +007 \
 		-name "$prov_fn" \
 		-exec \
-			mv -v '{}' "$plugin_dir/$arch/" \;
+			mv -v '{}' "$dst/" \;
 
 	[[ -e "$plugin_dir/$arch/terraform-provider-${name}_v${ver}_x4" ]]
 }
