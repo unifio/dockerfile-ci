@@ -100,5 +100,13 @@ COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/b
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
 
+# HACK -- We should likely just not base from the unifio image period
+RUN set -exv \
+ && cd /usr/local/bundle/gems \
+ && rm -rf covalence-* \
+ && git clone -b pr/fix-terraform-arguments \
+    https://github.com/whistlelabs/covalence.git covalence-0.8.3 \
+ && :
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
