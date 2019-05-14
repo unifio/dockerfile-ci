@@ -95,7 +95,7 @@ RUN mkdir -p /usr/local/bin && \
 # Copy required binaries from previous build stages
 COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
-COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/linux_amd64
+COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
