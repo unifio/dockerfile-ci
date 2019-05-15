@@ -104,7 +104,7 @@ RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
 RUN set -exv \
  && cd /usr/local/bundle/gems \
  && rm -rf covalence-* \
- && git clone -b pr/fix-terraform-arguments \
+ && git clone -b pr/terraform-012 \
     https://github.com/whistlelabs/covalence.git covalence-0.8.3 \
  && :
 
