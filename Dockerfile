@@ -40,20 +40,32 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip
 # Loop through the list of providers that we want to include
 RUN mkdir -p /usr/local/bin/terraform-providers && \
     for provider in \
+    archive:1.1.0 \
+    archive:1.2.2 \
     aws:0.1.4 \
     aws:1.10.0 \
-    aws:1.33.0 \
-    consul:0.1.0 \
+    aws:1.49.0 \
+    aws:1.60.0 \
+    aws:2.9.0 \
     datadog:0.1.1 \
+    datadog:1.8.0 \
     github:0.1.1 \
+    github:2.0.0 \
     google:0.1.3 \
+    google:2.5.1 \
     heroku:0.1.0 \
+    heroku:1.9.0 \
     logentries:0.1.0 \
-    newrelic:1.0.1 \
+    logentries:1.0.0 \
+    newrelic:1.3.0 \
+    newrelic:1.5.0 \
     null:1.0.0 \
-    pagerduty:1.1.0 \
-    rabbitmq:0.2.0 \
-    template:0.1.0; do \
+    null:2.1.2 \
+    pagerduty:1.2.1 \
+    rabbitmq:1.0.0 \
+    template:0.1.0 \
+    template:1.0.0 \
+    ; do \
         prov_name=`echo $provider | cut -d: -f1` && \
         prov_ver=`echo $provider | cut -d: -f2` && \
         echo "Installing provider ${prov_name} version ${prov_ver}" && \
@@ -109,7 +121,7 @@ RUN mkdir -p /usr/local/bin && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
     pip install awscli && \
-    gem install awesome_print consul_loader terraform_landscape thor --no-ri --no-rdoc && \
+    gem install awesome_print thor --no-document && \
     cd /tmp && \
     rm -rf /tmp/build
 
