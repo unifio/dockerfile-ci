@@ -66,7 +66,7 @@ RUN set -exv \
     nrs:0.1.0-whistle0-tf012 \
     pagerduty:1.2.1-whistle0-tf012 \
     rabbitmq:1.0.0-whistle0-tf012 \
-    sentry:0.4.0-whistle0-tf012 \
+    sentry:0.4.0-whistle1-tf012 \
  && :
 
 FROM unifio/covalence:0.8.3
