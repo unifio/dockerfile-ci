@@ -1,20 +1,21 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-FROM alpine:3.7 as packer
-LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
-ENV PACKER_VERSION 1.1.0
-
-RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
-    mkdir -p /tmp/build && \
-    cd /tmp/build && \
-    wget -q "https://circle-artifacts.com/gh/unifio/packer-post-processor-vagrant-s3/22/artifacts/0/home/ubuntu/.go_workspace/bin/packer-post-processor-vagrant-s3" && \
-    wget -q "https://circle-artifacts.com/gh/unifio/packer-provisioner-serverspec/26/artifacts/0/home/ubuntu/.go_workspace/bin/packer-provisioner-serverspec" && \
-    chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
-    mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
-    wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
-    unzip -d /usr/local/bin packer_${PACKER_VERSION}_linux_amd64.zip && \
-    cd /tmp && \
-    rm -rf /tmp/build
+# FROM alpine:3.7 as packer
+# LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
+# ENV PACKER_VERSION 1.1.0
+#
+# RUN set -exv \
+#     apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
+#     mkdir -p /tmp/build && \
+#     cd /tmp/build && \
+#     wget -q "https://circle-artifacts.com/gh/unifio/packer-post-processor-vagrant-s3/22/artifacts/0/home/ubuntu/.go_workspace/bin/packer-post-processor-vagrant-s3" && \
+#     wget -q "https://circle-artifacts.com/gh/unifio/packer-provisioner-serverspec/26/artifacts/0/home/ubuntu/.go_workspace/bin/packer-provisioner-serverspec" && \
+#     chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
+#     mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
+#     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
+#     unzip -d /usr/local/bin packer_${PACKER_VERSION}_linux_amd64.zip && \
+#     cd /tmp && \
+#     rm -rf /tmp/build
 
 FROM alpine:3.7 as terraform
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
@@ -71,7 +72,7 @@ RUN set -exv \
 FROM unifio/covalence:0.8.3
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
-LABEL packer_version="${PACKER_VERSION}"
+# LABEL packer_version="${PACKER_VERSION}"
 LABEL terraform_version="${TERRAFORM_VERSION}"
 
 # Install glibc, PIP, AWS CLI and Misc. Ruby tools
@@ -93,7 +94,7 @@ RUN mkdir -p /usr/local/bin && \
     rm -rf /tmp/build
 
 # Copy required binaries from previous build stages
-COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
+# COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
 COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
 COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/
 
