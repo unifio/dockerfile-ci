@@ -110,5 +110,8 @@ RUN set -exv \
     https://github.com/whistlelabs/covalence.git covalence-0.8.3 \
  && :
 
+# yolo
+RUN apk add zsh
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
