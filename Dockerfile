@@ -63,7 +63,7 @@ RUN set -exv \
     datadog:1.9.0-whistle0-tf012 \
     heroku:1.9.0-whistle0-tf012 \
     logentries:1.0.0-whistle0-tf012 \
-    nrs:0.1.0-whistle0-tf012 \
+    nrs:0.1.0-whistle1-tf012 \
     pagerduty:1.2.1-whistle0-tf012 \
     rabbitmq:1.0.0-whistle0-tf012 \
     sentry:0.4.0-whistle1-tf012 \
