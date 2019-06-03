@@ -40,13 +40,12 @@ COPY install-tf-provider /usr/local/bin/
 # Loop through the list of providers that we want to include
 RUN set -exv \
  && install-tf-provider \
-        archive:1.2.2 \
-        aws:2.13.0 \
-        github:2.1.0 \
-        google:2.7.0 \
-        newrelic:1.5.0 \
-        null:2.1.2 \
-        template:2.1.2 \
+    archive:1.2.2 \
+    github:2.1.0 \
+    google:2.7.0 \
+    newrelic:1.5.0 \
+    null:2.1.2 \
+    template:2.1.2 \
  && :
 
 # Install 3rd party providers forked from open source - eventually these should come from https://registry.terraform.io/
@@ -59,6 +58,7 @@ RUN set -exv \
  && export uri_template='https://github.com/WhistleLabs/terraform-provider-${name}/releases/download/v${full_ver}/terraform-provider-${name}_${ver}_${arch}.zip' \
  && install-tf-provider \
     atlas:0.1.1-whistle0-tf012 \
+    aws:2.13.0-whistle0-tf012 \
     cloudamqp:0.0.1-whistle0-tf012 \
     datadog:1.9.0-whistle0-tf012 \
     heroku:1.9.0-whistle0-tf012 \
