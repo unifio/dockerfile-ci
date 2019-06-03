@@ -41,7 +41,7 @@ COPY install-tf-provider /usr/local/bin/
 RUN set -exv \
  && install-tf-provider \
         archive:1.2.2 \
-        aws:2.12.0 \
+        aws:2.13.0 \
         github:2.1.0 \
         google:2.7.0 \
         newrelic:1.5.0 \
