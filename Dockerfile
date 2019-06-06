@@ -55,7 +55,6 @@ RUN set -exv \
 RUN set -exv \
  && export uri_template='https://github.com/WhistleLabs/terraform-provider-${name}/releases/download/v${full_ver}/terraform-provider-${name}_${ver}_${arch}.zip' \
  && install-tf-provider \
-    atlas:0.1.1-whistle0-tf012 \
     aws:2.13.0-whistle0-tf012 \
     cloudamqp:0.0.1-whistle0-tf012 \
     datadog:1.9.0-whistle0-tf012 \
