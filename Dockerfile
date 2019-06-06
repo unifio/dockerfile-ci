@@ -37,7 +37,6 @@ RUN apk add --no-cache --update ca-certificates gnupg openssl unzip bash curl
 WORKDIR /tmp/build
 COPY install-tf-provider /usr/local/bin/
 
-# Loop through the list of providers that we want to include
 RUN set -exv \
  && install-tf-provider \
     archive:1.2.2 \
@@ -53,7 +52,6 @@ RUN set -exv \
 # and
 # https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
 
-# Loop through the list of providers that we want to include
 RUN set -exv \
  && export uri_template='https://github.com/WhistleLabs/terraform-provider-${name}/releases/download/v${full_ver}/terraform-provider-${name}_${ver}_${arch}.zip' \
  && install-tf-provider \
