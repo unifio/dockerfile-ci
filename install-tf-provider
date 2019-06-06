@@ -28,6 +28,8 @@ function nullify		{ "$@" >/dev/null 2>&1; }
 
 : ${uri_template:='https://releases.hashicorp.com/terraform-provider-${name}/${ver}/terraform-provider-${name}_${ver}_${arch}.zip'}
 
+# Note: This is a bad location. It should not be here.
+# TODO Utilize ~/.terraform.d/plugins -- this is just more compatible
 : ${plugin_dir:=${TF_PLUGIN_CACHE_DIR:-'/usr/local/bin/terraform-providers'}}
 
 : ${arch:='linux_amd64'}
