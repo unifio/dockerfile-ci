@@ -109,6 +109,7 @@ RUN set -exv \
 
 # yolo
 RUN apk add zsh
+ENV SHELL=zsh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
