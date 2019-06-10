@@ -108,7 +108,7 @@ RUN set -exv \
  && :
 
 # yolo
-RUN apk add zsh
+RUN apk add zsh fzf
 ENV SHELL=zsh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
