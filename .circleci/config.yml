@@ -53,7 +53,7 @@ jobs:
           command: |
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "gem list | grep covalence"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "aws --version"
-            # docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
+            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
             docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "terraform version"
             docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /usr/local/bin/terraform-providers/linux_amd64"
       - deploy:
