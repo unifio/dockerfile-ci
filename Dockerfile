@@ -69,7 +69,7 @@ RUN set -exv \
  && :
 ENV SHELL=zsh
 
-# LABEL packer_version="${PACKER_VERSION}"
+LABEL packer_version="${PACKER_VERSION}"
 LABEL terraform_version="${TERRAFORM_VERSION}"
 
 # Install glibc, PIP, AWS CLI and Misc. Ruby tools
