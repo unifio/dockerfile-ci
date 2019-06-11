@@ -32,7 +32,9 @@ jobs:
             apk add --no-cache \
               curl \
               docker \
-              python-dev
+              libffi-dev \
+              python-dev \
+              gcc \
             curl -O https://bootstrap.pypa.io/get-pip.py
             python get-pip.py
             pip install --upgrade \
