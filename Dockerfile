@@ -1,73 +1,73 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-# FROM alpine:3.7 as packer
-# LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
-# ENV PACKER_VERSION 1.1.0
-#
-# RUN set -exv \
-#     apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
-#     mkdir -p /tmp/build && \
-#     cd /tmp/build && \
-#     wget -q "https://circle-artifacts.com/gh/unifio/packer-post-processor-vagrant-s3/22/artifacts/0/home/ubuntu/.go_workspace/bin/packer-post-processor-vagrant-s3" && \
-#     wget -q "https://circle-artifacts.com/gh/unifio/packer-provisioner-serverspec/26/artifacts/0/home/ubuntu/.go_workspace/bin/packer-provisioner-serverspec" && \
-#     chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
-#     mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
-#     wget -q "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
-#     unzip -d /usr/local/bin packer_${PACKER_VERSION}_linux_amd64.zip && \
-#     cd /tmp && \
-#     rm -rf /tmp/build
+FROM alpine:3.7 as base
+MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
-FROM alpine:3.7 as terraform
-LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
-ENV TERRAFORM_VERSION 0.12.0
+# reqs
+RUN set -exv \
+ && apk add --no-cache --update \
+        ca-certificates curl unzip \
+        bash zsh \
+ && :
+ENV SHELL=zsh
 
-RUN apk add --no-cache --update ca-certificates gnupg openssl wget unzip && \
-    mkdir -p /tmp/build && \
-    cd /tmp/build && \
-    wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
-    unzip -d /usr/local/bin terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    cd /tmp && \
-    rm -rf /tmp/build
+##
+## build
+##
+FROM base AS build
+WORKDIR /build
+ENV PATH=/build/bin:$PATH
 
-FROM alpine:3.7 as terraform_providers
-LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
+ARG PACKER_VERSION=1.1.0
+ARG TERRAFORM_VERSION=0.12.0
 
-RUN apk add --no-cache --update ca-certificates gnupg openssl unzip bash curl
-
-WORKDIR /tmp/build
-COPY install-tf-provider /usr/local/bin/
+COPY install-zipped-bin ./bin/
+RUN mkdir -pv terraform-providers
 
 RUN set -exv \
- && install-tf-provider \
-    archive:1.2.2 \
-    github:2.1.0 \
-    google:2.7.0 \
-    newrelic:1.5.0 \
-    null:2.1.2 \
-    template:2.1.2 \
+ && export uri_template='https://releases.hashicorp.com/${name}/${ver}/${name}_${ver}_${arch}.zip' \
+ # packer & terraform
+ && install-zipped-bin ./bin \
+    packer:$PACKER_VERSION \
+    terraform:$TERRAFORM_VERSION \
+ # terraform providers
+ && install-zipped-bin ./terraform-providers \
+    terraform-provider-archive:1.2.2 \
+    terraform-provider-github:2.1.0 \
+    terraform-provider-google:2.7.0 \
+    terraform-provider-newrelic:1.5.0 \
+    terraform-provider-null:2.1.2 \
+    terraform-provider-template:2.1.2 \
  && :
 
-# Install 3rd party providers forked from open source - eventually these should come from https://registry.terraform.io/
-# See https://github.com/hashicorp/terraform/issues/17154
-# and
-# https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
-
+# @WhistleLabs github releases
 RUN set -exv \
- && export uri_template='https://github.com/WhistleLabs/terraform-provider-${name}/releases/download/v${full_ver}/terraform-provider-${name}_${ver}_${arch}.zip' \
- && install-tf-provider \
-    aws:2.13.0-whistle0-tf012 \
-    cloudamqp:0.0.1-whistle0-tf012 \
-    datadog:1.9.0-whistle0-tf012 \
-    heroku:1.9.0-whistle0-tf012 \
-    logentries:1.0.0-whistle0-tf012 \
-    nrs:0.1.0-whistle1-tf012 \
-    pagerduty:1.2.1-whistle0-tf012 \
-    rabbitmq:1.0.0-whistle0-tf012 \
-    sentry:0.4.0-whistle1-tf012 \
+ && export uri_template='https://github.com/WhistleLabs/${name}/releases/download/v${full_ver}/${name}_${ver}_${arch}.zip' \
+ # packer plugins
+ && install-zipped-bin ./bin \
+    packer-post-processor-vagrant-s3:0.0.1-whistle0 \
+    packer-provisioner-serverspec:0.0.1-whistle0 \
+ # terraform providers
+ && install-zipped-bin ./terraform-providers \
+    terraform-provider-aws:2.13.0-whistle0-tf012 \
+    terraform-provider-cloudamqp:0.0.1-whistle0-tf012 \
+    terraform-provider-datadog:1.9.0-whistle0-tf012 \
+    terraform-provider-heroku:1.9.0-whistle0-tf012 \
+    terraform-provider-logentries:1.0.0-whistle0-tf012 \
+    terraform-provider-nrs:0.1.0-whistle1-tf012 \
+    terraform-provider-pagerduty:1.2.1-whistle0-tf012 \
+    terraform-provider-rabbitmq:1.0.0-whistle0-tf012 \
+    terraform-provider-sentry:0.4.0-whistle1-tf012 \
  && :
 
 FROM unifio/covalence:0.8.3
-LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
+MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
+
+RUN set -exv \
+ && apk add --no-cache --update \
+        bash zsh fzf \
+ && :
+ENV SHELL=zsh
 
 # LABEL packer_version="${PACKER_VERSION}"
 LABEL terraform_version="${TERRAFORM_VERSION}"
@@ -91,9 +91,8 @@ RUN mkdir -p /usr/local/bin && \
     rm -rf /tmp/build
 
 # Copy required binaries from previous build stages
-# COPY --from=packer /usr/local/bin/packer* /usr/local/bin/
-COPY --from=terraform /usr/local/bin/terraform* /usr/local/bin
-COPY --from=terraform_providers /usr/local/bin/terraform-providers/ /usr/local/bin/terraform-providers/
+COPY --from=build /build/bin/* /usr/local/bin/
+COPY --from=build /build/terraform-providers/* /usr/local/bin/terraform-providers/linux_amd64/
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 # TODO Move these to ~/.teraform.d/plugins instead, avoiding all the magic required for this (and the 777)
@@ -108,8 +107,6 @@ RUN set -exv \
  && :
 
 # yolo
-RUN apk add zsh fzf
-ENV SHELL=zsh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
