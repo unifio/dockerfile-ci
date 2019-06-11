@@ -55,7 +55,7 @@ templatize() {
 
 	echo $val
 
-	[[ -n "$val" ]]
+	[[ -n $val ]]
 }
 
 
@@ -69,13 +69,13 @@ install-provider() {
 
 	# tf doesn't support anything but plain semver it seems.
 	# iow: `1.0.0-whistle0` => `1.0.0`
-	local ver="${full_ver%%-*}"
+	local ver=${full_ver%%-*}
 
 	# kwargs to use in templating our uri.
 	local -A vars=()
 	local v; for v in arch name ver full_ver; vars[$v]=${(P)v}
 
-	local uri=$(templatize "$uri_template" vars)
+	local uri=$(templatize $uri_template vars)
 	: ${uri:?}
 
 	local zip_basefn=${uri##*/}
@@ -105,9 +105,9 @@ main() {
 
 	local prov name ver
 	for prov in "$@"; do
-		name="${prov%%:*}" ver="${prov#*:}"
+		name=${prov%%:*} ver=${prov#*:}
 
-		install-provider "$arch" "$name" "$ver"
+		install-provider $arch $name $ver
 	done
 
 	# This is done here and not via a trap to leave the build dir on failure
@@ -115,7 +115,7 @@ main() {
 }
 
 on_exit() {
-	rm -rf "$build_dir"
+	rm -rf $build_dir
 }
 
 main "$@"
