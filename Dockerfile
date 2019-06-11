@@ -86,7 +86,8 @@ RUN mkdir -p /usr/local/bin && \
     rm -rf /tmp/build
 
 # Copy required binaries from previous build stages
-COPY --from=build /build/bin/* /usr/local/bin/
+COPY --from=build /build/bin/packer* /usr/local/bin/
+COPY --from=build /build/bin/terraform /usr/local/bin/
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 # TODO Move these to ~/.teraform.d/plugins instead, avoiding all the magic required for this (and the 777)
