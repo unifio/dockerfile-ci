@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/bin/zsh
 set -eo pipefail
-shopt -s nullglob
-# set -xv
-set -v
+setopt nullglob
+set -xv
 
 #
 # output
@@ -27,10 +26,7 @@ function nullify		{ "$@" >/dev/null 2>&1; }
 #
 
 : ${uri_template:?}
-
-# Note: This is a bad location. It should not be here.
-# TODO Utilize ~/.terraform.d/plugins -- this is just more compatible
-: ${plugin_dir:='.'}
+: ${dst:=.}
 
 : ${arch:='linux_amd64'}
 : ${build_dir:='/tmp/build'}
@@ -41,20 +37,22 @@ function nullify		{ "$@" >/dev/null 2>&1; }
 #
 
 templatize() {
-	local template="${1:?}"
-	local -n kw="${2:?}"
+	local template=${1:?}
 
-	local val="$template"
+	: ${2:?}
+	local -A kw=(${(kv)${(P)2}})
+
+	local val=$template
 
 	local k from to
-	for k in "${!kw[@]}"; do
-		to="${kw[$k]}"
+	for k in ${(k)kw}; do
+		to=${kw[$k]}
 		from="\${$k}"
 
-		val="${val//$from/$to}"
+		val=${val//$from/$to}
 	done
 
-	echo "$val"
+	echo $val
 
 	[[ -n "$val" ]]
 }
@@ -65,7 +63,7 @@ templatize() {
 #
 
 install-provider() {
-	local arch="${1:?}" name="${2:?}" full_ver="${3:?}"
+	local arch=${1:?} name=${2:?} full_ver=${3:?}
 	: ${build_dir:?} ${uri_template:?}
 
 	# tf doesn't support anything but plain semver it seems.
@@ -73,44 +71,37 @@ install-provider() {
 	local ver="${full_ver%%-*}"
 
 	# kwargs to use in templating our uri.
-	local -A vars=(
-		[arch]="$arch"
-		[name]="$name"
-		[ver]="$ver"
-		[full_ver]="$full_ver"
-	)
+	local -A vars=()
+	local v; for v in arch name ver full_ver; vars[$v]=${(P)v}
 
 	local uri=$(templatize "$uri_template" vars)
 	: ${uri:?}
 
-	local zip_basefn="${uri##*/}"
-	local zip_absfn="${build_dir:?}/${zip_basefn:?}"
+	local zip_basefn=${uri##*/}
+	local zip_absfn=${build_dir:?}/${zip_basefn:?}
 
-	local prov_build_dir="$build_dir/${name}-v${full_ver}"
-	mkdir -pv "$prov_build_dir"
+	local build_dir=$build_dir/${name}-v${full_ver}
+	mkdir -pv $build_dir
 
-	e "[$name:$full_ver] Downloading provider: uri=$uri ==> zip_absfn=$zip_absfn"
-	curl -sSLfo "$zip_absfn" "$uri"
+	e "[$name:$full_ver] Downloading uri=$uri ==> zip_absfn=$zip_absfn"
+	curl -sSLfo $zip_absfn $uri
 
-	e "[$name:$full_ver] Extracting provider"
-	unzip -d "$prov_build_dir" "$zip_absfn"
+	e "[$name:$full_ver] Extracting zip_absfn=$zip_absfn"
+	unzip -d $build_dir $zip_absfn
 
-	local prov_fn="${name}_v${ver}_x4"
-	local dst="$plugin_dir/$arch"
+	e "[$name:$full_ver] Installing to dst=$dst"
 
-	e "[$name:$full_ver] Installing provider (prov_fn=$prov_fn)"
-	mkdir -pv "$dst"
-	find "$prov_build_dir" \
-		-type f \
-		-perm +007 \
-		-name "$prov_fn" \
-		-exec \
-			mv -v '{}' "$dst/" \;
+	local exec_fns=($build_dir/**(*))
 
-	[[ -e "$dst/$prov_fn" ]]
+	[[ $#exec_fns -gt 0 ]] \
+		|| death "Could not find any executables inside of build_dir=$build_dir"
+
+	mv -v $exec_fns $dst/
 }
 
 main() {
+	local dst=${1:?}; shift
+
 	local prov name ver
 	for prov in "$@"; do
 		name="${prov%%:*}" ver="${prov#*:}"
