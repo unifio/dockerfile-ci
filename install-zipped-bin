@@ -1,7 +1,8 @@
 #!/bin/zsh
 set -eo pipefail
 setopt nullglob
-set -xv
+# set -xv
+set -v
 
 #
 # output
