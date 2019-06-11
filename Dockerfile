@@ -1,29 +1,23 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-FROM alpine:3.7 as base
+FROM alpine:3.7 as build
 MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
-# reqs
 RUN set -exv \
  && apk add --no-cache --update \
-        ca-certificates curl unzip \
-        bash zsh \
+        ca-certificates curl unzip zsh \
  && :
-ENV SHELL=zsh
 
-##
-## build
-##
-FROM base AS build
 WORKDIR /build
-ENV PATH=/build/bin:$PATH
-
-ARG PACKER_VERSION=1.1.0
-ARG TERRAFORM_VERSION=0.12.0
+ENV PATH=$PATH:/build/bin
 
 COPY install-zipped-bin ./bin/
 RUN mkdir -pv terraform-providers
 
+ARG PACKER_VERSION=1.1.0
+ARG TERRAFORM_VERSION=0.12.0
+
+# @hashicorp releases
 RUN set -exv \
  && export uri_template='https://releases.hashicorp.com/${name}/${ver}/${name}_${ver}_${arch}.zip' \
  # packer & terraform
@@ -65,7 +59,8 @@ MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
 RUN set -exv \
  && apk add --no-cache --update \
-        bash zsh fzf \
+        ca-certificates curl unzip zsh \
+        fzf \
  && :
 ENV SHELL=zsh
 
@@ -92,10 +87,10 @@ RUN mkdir -p /usr/local/bin && \
 
 # Copy required binaries from previous build stages
 COPY --from=build /build/bin/* /usr/local/bin/
-COPY --from=build /build/terraform-providers/* /usr/local/bin/terraform-providers/linux_amd64/
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 # TODO Move these to ~/.teraform.d/plugins instead, avoiding all the magic required for this (and the 777)
+COPY --from=build /build/terraform-providers/* /usr/local/bin/terraform-providers/linux_amd64/
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
 
 # HACK We should likely just not base from the unifio image period
@@ -105,8 +100,6 @@ RUN set -exv \
  && git clone -b pr/terraform-012 \
     https://github.com/whistlelabs/covalence.git covalence-0.8.3 \
  && :
-
-# yolo
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
