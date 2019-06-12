@@ -16,7 +16,7 @@ common: &common
     RUBY_VERSION: '2.5.3'
     SOPS_VERSION: '3.2.0'
     TERRAFORM_REGISTRY: 'unifio/terraform'
-    TERRAFORM_VERSION: '0.11.13'
+    TERRAFORM_VERSION: '0.11.14'
 
 version: 2
 jobs:
@@ -29,12 +29,20 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache \
+            apk update && apk add --no-cache \
               curl \
+              ca-certificates \
+              curl-dev \
               docker \
-              python-dev
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python get-pip.py
+              build-base \
+              python3-dev \
+              gcc \
+              libffi-dev
+            python3 -m ensurepip && \
+            rm -r /usr/lib/python*/ensurepip && \
+            pip3 install --upgrade pip setuptools && \
+            if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+            if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             pip install --upgrade \
               docker-compose
       - restore_cache:
@@ -102,12 +110,20 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache \
+            apk update && apk add --no-cache \
               curl \
+              ca-certificates \
+              curl-dev \
               docker \
-              python-dev
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python get-pip.py
+              build-base \
+              python3-dev \
+              gcc \
+              libffi-dev
+            python3 -m ensurepip && \
+            rm -r /usr/lib/python*/ensurepip && \
+            pip3 install --upgrade pip setuptools && \
+            if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+            if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             pip install --upgrade \
               docker-compose
       - restore_cache:
@@ -172,10 +188,19 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache \
+            apk update && apk add --no-cache \
               curl \
               docker \
-              python-dev
+              build-base \
+              python3-dev \
+              gcc \
+              libffi-dev\
+              openssl-dev
+            python3 -m ensurepip && \
+            rm -r /usr/lib/python*/ensurepip && \
+            pip3 install --upgrade pip setuptools && \
+            if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+            if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             curl -O https://bootstrap.pypa.io/get-pip.py
             python get-pip.py
             pip install --upgrade \
@@ -240,25 +265,30 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache \
-              bash \
-              build-base \
-              ca-certificates \
+            apk update && apk add --no-cache \
               curl \
+              ca-certificates \
               curl-dev \
               docker \
+              build-base \
+              python3-dev \
+              gcc \
+              libffi-dev \
               libxml2-dev \
               libxslt-dev \
-              openssl \
-              python-dev \
               ruby \
               ruby-bundler \
               ruby-dev \
               ruby-io-console \
               ruby-json \
-              tar
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python get-pip.py
+              tar \
+              bash
+
+            python3 -m ensurepip && \
+            rm -r /usr/lib/python*/ensurepip && \
+            pip3 install --upgrade pip setuptools && \
+            if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+            if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             pip install --upgrade \
               docker-compose
             gem install bundler --no-document
@@ -346,25 +376,30 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache \
-              bash \
-              build-base \
-              ca-certificates \
+            apk update && apk add --no-cache \
               curl \
+              ca-certificates \
               curl-dev \
               docker \
+              build-base \
+              python3-dev \
+              gcc \
+              libffi-dev \
               libxml2-dev \
               libxslt-dev \
-              openssl \
-              python-dev \
               ruby \
               ruby-bundler \
               ruby-dev \
               ruby-io-console \
               ruby-json \
-              tar
-            curl -O https://bootstrap.pypa.io/get-pip.py
-            python get-pip.py
+              tar \
+              bash
+
+            python3 -m ensurepip && \
+            rm -r /usr/lib/python*/ensurepip && \
+            pip3 install --upgrade pip setuptools && \
+            if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+            if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             pip install --upgrade \
               docker-compose
             gem install bundler --no-document

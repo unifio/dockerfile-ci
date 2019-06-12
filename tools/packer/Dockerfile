@@ -60,9 +60,11 @@ RUN set -ex; \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
-  wget -q "https://circle-artifacts.com/gh/unifio/packer-post-processor-vagrant-s3/22/artifacts/0/home/ubuntu/.go_workspace/bin/packer-post-processor-vagrant-s3" && \
-  wget -q "https://circle-artifacts.com/gh/unifio/packer-provisioner-serverspec/26/artifacts/0/home/ubuntu/.go_workspace/bin/packer-provisioner-serverspec" && \
+  wget -q "https://github.com/unifio/packer-post-processor-vagrant-s3/releases/download/v.0.0.1/packer-post-processor-vagrant-s3_0.0.1_linux_amd64.zip" && \
+  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.0.1/packer-provisioner-serverspec_0.0.1_linux_amd64.zip" && \
   \
+  unzip -o packer-post-processor-vagrant-s3_0.0.1_linux_amd64.zip && \
+  unzip -o packer-provisioner-serverspec_0.0.1_linux_amd64.zip && \
   chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
   mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
   gem install io-console bundler rake rspec serverspec --no-document  && \
