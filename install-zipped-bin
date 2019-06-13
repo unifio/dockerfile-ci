@@ -63,7 +63,7 @@ templatize() {
 # meat
 #
 
-install-provider() {
+install-single() {
 	local arch=${1:?} name=${2:?} full_ver=${3:?}
 	: ${build_dir:?} ${uri_template:?}
 
@@ -107,7 +107,7 @@ main() {
 	for prov in "$@"; do
 		name=${prov%%:*} ver=${prov#*:}
 
-		install-provider $arch $name $ver
+		install-single $arch $name $ver
 	done
 
 	# This is done here and not via a trap to leave the build dir on failure
