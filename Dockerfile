@@ -95,6 +95,7 @@ COPY --from=build /build/terraform-providers/* /usr/local/bin/terraform-provider
 RUN chmod 777 /usr/local/bin/terraform-providers/linux_amd64
 
 # HACK We should likely just not base from the unifio image period
+COPY .build_ts .
 RUN set -exv \
  && cd /usr/local/bundle/gems \
  && rm -rf covalence-* \
