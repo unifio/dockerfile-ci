@@ -2,7 +2,6 @@
 set -eo pipefail
 setopt nullglob
 # set -xv
-set -v
 
 #
 # output
