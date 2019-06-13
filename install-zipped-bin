@@ -1,0 +1,121 @@
+#!/bin/zsh
+set -eo pipefail
+setopt nullglob
+# set -xv
+
+#
+# output
+#
+
+SELF="${0##*/}"
+
+function _script_echo   { echo "[$(date)] $SELF[$$]" "${@:2}" "#$1" >&2; }
+function debug          { [[ -z "$DEBUG" ]] || _script_echo DEBUG "$@"; }
+function e              { [[ -n "$QUIET" ]] || _script_echo INFO "$@"; }
+function info           { e "$@"; }
+function warn           { [[ -n "$QUIET" ]] || _script_echo WARNING "$@"; }
+function warning        { warn "$@"; }
+function error          { _script_echo ERROR "$@" >&2; }
+function death          { error "$@"; exit 1; }
+function debug_call     { debug 'call:' "$@"; "$@"; }
+function nullify		{ "$@" >/dev/null 2>&1; }
+
+
+#
+# vars
+#
+
+: ${uri_template:?}
+: ${dst:=.}
+
+: ${arch:='linux_amd64'}
+: ${build_dir:='/tmp/build'}
+
+
+#
+# helpers
+#
+
+templatize() {
+	local template=${1:?}
+
+	: ${2:?}
+	local -A kw=(${(kv)${(P)2}})
+
+	local val=$template
+
+	local k from to
+	for k in ${(k)kw}; do
+		to=${kw[$k]}
+		from="\${$k}"
+
+		val=${val//$from/$to}
+	done
+
+	echo $val
+
+	[[ -n $val ]]
+}
+
+
+#
+# meat
+#
+
+install-single() {
+	local arch=${1:?} name=${2:?} full_ver=${3:?}
+	: ${build_dir:?} ${uri_template:?}
+
+	# tf doesn't support anything but plain semver it seems.
+	# iow: `1.0.0-whistle0` => `1.0.0`
+	local ver=${full_ver%%-*}
+
+	# kwargs to use in templating our uri.
+	local -A vars=()
+	local v; for v in arch name ver full_ver; vars[$v]=${(P)v}
+
+	local uri=$(templatize $uri_template vars)
+	: ${uri:?}
+
+	local zip_basefn=${uri##*/}
+	local zip_absfn=${build_dir:?}/${zip_basefn:?}
+
+	local build_dir=$build_dir/${name}-v${full_ver}
+	mkdir -pv $build_dir
+
+	e "[$name:$full_ver] Downloading uri=$uri ==> zip_absfn=$zip_absfn"
+	curl -sSLfo $zip_absfn $uri
+
+	e "[$name:$full_ver] Extracting zip_absfn=$zip_absfn"
+	unzip -d $build_dir $zip_absfn
+
+	e "[$name:$full_ver] Installing to dst=$dst"
+
+	local exec_fns=($build_dir/**(*))
+
+	[[ $#exec_fns -gt 0 ]] \
+		|| death "Could not find any executables inside of build_dir=$build_dir"
+
+	mv -v $exec_fns $dst/
+}
+
+main() {
+	local dst=${1:?}; shift
+
+	local prov name ver
+	for prov in "$@"; do
+		name=${prov%%:*} ver=${prov#*:}
+
+		install-single $arch $name $ver
+	done
+
+	# This is done here and not via a trap to leave the build dir on failure
+	on_exit
+}
+
+on_exit() {
+	rm -rf $build_dir
+}
+
+main "$@"
+
