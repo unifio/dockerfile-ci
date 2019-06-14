@@ -99,7 +99,7 @@ COPY .build_ts .
 RUN set -exv \
  && cd /usr/local/bundle/gems \
  && rm -rf covalence-* \
- && git clone -b pr/terraform-012 \
+ && git clone -b master \
     https://github.com/whistlelabs/covalence.git covalence-0.8.3 \
  && :
 
