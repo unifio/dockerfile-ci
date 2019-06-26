@@ -27,6 +27,7 @@ RUN set -exv \
  # terraform providers
  && install-zipped-bin ./terraform-providers \
     terraform-provider-archive:1.2.2 \
+    terraform-provider-aws:2.16.0 \
     terraform-provider-github:2.1.0 \
     terraform-provider-google:2.7.0 \
     terraform-provider-newrelic:1.5.0 \
@@ -43,7 +44,6 @@ RUN set -exv \
     packer-provisioner-serverspec:0.0.1-whistle0 \
  # terraform providers
  && install-zipped-bin ./terraform-providers \
-    terraform-provider-aws:2.13.0-whistle0-tf012 \
     terraform-provider-cloudamqp:0.0.1-whistle0-tf012 \
     terraform-provider-datadog:1.9.0-whistle0-tf012 \
     terraform-provider-heroku:1.9.0-whistle0-tf012 \
