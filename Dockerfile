@@ -15,7 +15,7 @@ COPY install-zipped-bin ./bin/
 RUN mkdir -pv terraform-providers
 
 ARG PACKER_VERSION=1.1.0
-ARG TERRAFORM_VERSION=0.12.2
+ARG TERRAFORM_VERSION=0.12.3
 
 # @hashicorp releases
 RUN set -exv \
