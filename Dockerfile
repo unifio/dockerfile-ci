@@ -1,6 +1,6 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-FROM alpine:3.7 as build
+FROM alpine:3.8 as build
 MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
 RUN set -exv \
@@ -84,6 +84,13 @@ RUN mkdir -p /usr/local/bin && \
     gem install awesome_print thor --no-document && \
     cd /tmp && \
     rm -rf /tmp/build
+
+# Install prefixout from Trevor
+RUN set -exv \
+  && apk add go \
+  && go get -u -x -v github.com/akatrevorjay/prefixout
+
+ENV PATH=$PATH:/home/user/go/bin/
 
 # Copy required binaries from previous build stages
 COPY --from=build /build/bin/packer* /usr/local/bin/
