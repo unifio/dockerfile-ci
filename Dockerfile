@@ -88,9 +88,9 @@ RUN mkdir -p /usr/local/bin && \
 # Install prefixout from Trevor
 RUN set -exv \
   && apk add go \
-  && go get -u -x -v github.com/akatrevorjay/prefixout
-
-ENV PATH=$PATH:/home/user/go/bin/
+  && go get -u -x -v github.com/akatrevorjay/prefixout \
+  && cp /root/go/bin/prefixout /usr/local/bin/ \
+  && chmod a+rx /usr/local/bin/prefixout
 
 # Copy required binaries from previous build stages
 COPY --from=build /build/bin/packer* /usr/local/bin/
