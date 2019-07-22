@@ -88,7 +88,7 @@ RUN mkdir -p /usr/local/bin && \
 # Install prefixout from Trevor
 RUN set -exv \
   && apk add go \
-  && go get -u -x -v github.com/akatrevorjay/prefixout \
+  && go get -u -x -v github.com/WhistleLabs/prefixout \
   && cp /root/go/bin/prefixout /usr/local/bin/ \
   && chmod a+rx /usr/local/bin/prefixout
 
