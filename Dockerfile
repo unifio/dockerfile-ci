@@ -1,6 +1,6 @@
 # TODO - all security checking of downloaded binaries has been removed
 
-FROM alpine:3.8 as build
+FROM alpine:3.7 as build
 MAINTAINER "WhistleLabs, Inc. <devops@whistle.com>"
 
 RUN set -exv \
