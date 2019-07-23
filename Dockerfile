@@ -42,6 +42,7 @@ RUN set -exv \
  && install-zipped-bin ./bin \
     packer-post-processor-vagrant-s3:0.0.1-whistle0 \
     packer-provisioner-serverspec:0.0.1-whistle0 \
+    prefixout:0.1.0 \
  # terraform providers
  && install-zipped-bin ./terraform-providers \
     terraform-provider-cloudamqp:0.0.1-whistle0-tf012 \
@@ -85,18 +86,9 @@ RUN mkdir -p /usr/local/bin && \
     cd /tmp && \
     rm -rf /tmp/build
 
-# Install prefixout from Trevor
-RUN set -exv \
-  && apk add go \
-  && go get -u -x -v github.com/WhistleLabs/prefixout \
-  && cp /root/go/bin/prefixout /usr/local/bin/ \
-  && chmod a+rx /usr/local/bin/prefixout \
-  && apk del go \
-  && rm -fr /root/go
 
 # Copy required binaries from previous build stages
-COPY --from=build /build/bin/packer* /usr/local/bin/
-COPY --from=build /build/bin/terraform /usr/local/bin/
+COPY --from=build /build/bin/* /usr/local/bin/
 
 # Provider dir needs write permissions by everyone in case additional providers need to be installed at runtime
 # TODO Move these to ~/.teraform.d/plugins instead, avoiding all the magic required for this (and the 777)
