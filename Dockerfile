@@ -90,7 +90,9 @@ RUN set -exv \
   && apk add go \
   && go get -u -x -v github.com/WhistleLabs/prefixout \
   && cp /root/go/bin/prefixout /usr/local/bin/ \
-  && chmod a+rx /usr/local/bin/prefixout
+  && chmod a+rx /usr/local/bin/prefixout \
+  && apk del go \
+  && rm -fr /root/go
 
 # Copy required binaries from previous build stages
 COPY --from=build /build/bin/packer* /usr/local/bin/
