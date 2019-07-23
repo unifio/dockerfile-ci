@@ -14,8 +14,9 @@ ENV PATH=$PATH:/build/bin
 COPY install-zipped-bin ./bin/
 RUN mkdir -pv terraform-providers
 
+# Remember to update `.circleci/config.yml` as well because reasons
 ARG PACKER_VERSION=1.1.0
-ARG TERRAFORM_VERSION=0.12.3
+ARG TERRAFORM_VERSION=0.12.5
 
 # @hashicorp releases
 RUN set -exv \
