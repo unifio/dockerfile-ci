@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: trevorj/circleci-builder:latest
+      - image: circleci/python:latest
 
     environment:
       PACKER_VERSION: 1.1.0
