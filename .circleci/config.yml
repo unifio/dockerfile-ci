@@ -35,12 +35,11 @@ jobs:
           version: 17.10.0-ce
 
       - run:
-          name: docker login
+          name: docker info
           command: |
             set -eo pipefail
 
             docker info
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
 
       - restore_cache:
           keys:
@@ -125,6 +124,8 @@ jobs:
                 )
                 ;;
             esac
+
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
 
             for tag in "${push_tags[@]}"; do
               docker tag "$build_tag" "$tag"
