@@ -85,7 +85,9 @@ jobs:
             build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
 
             mkdir -pv ~/docker
-            docker save "$build_tag" > ~/docker/image.tar
+
+            # The history is also required to get each individual layer.
+            docker save "$build_tag" $(docker history -q "$build_tag") > ~/docker/image.tar
 
       - save_cache:
           key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
