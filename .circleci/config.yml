@@ -3,64 +3,130 @@ version: 2
 jobs:
   build:
     docker:
-      - image: alpine:3.7
+      - image: circleci/python:latest
+
     environment:
-      MAJOR_VERSION_TAG: 2
-      PACKER_VERSION_TAG: 1.1.0
-      TERRAFORM_VERSION_TAG: 0.12.3
-      CI_CONTAINER_NAME: 'whistle-ci'
-      TF_IMAGE: 'unifio/terraform'
-      PKR_IMAGE: 'unifio/packer'
       CI_IMAGE_NAME: 'whistle/ci'
+      PACKER_VERSION: 1.1.0
+      TERRAFORM_VERSION: 0.12.6
+
     steps:
+      - restore_cache:
+          keys:
+            - source-v2-{{ .Branch }}-{{ .Revision }}
+            - source-v2-{{ .Branch }}-
+            - source-v2-
+
       - checkout
+      - run:
+          name: checkout-submodules
+          command: |
+            set -eo pipefail
+
+            git submodule sync
+            git submodule update --init
+
+      - save_cache:
+          key: source-v2-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
+
       - setup_remote_docker:
           version: 17.10.0-ce
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --no-cache \
-              bash \
-              curl \
-              docker \
-              jq
-      - save_cache:
-          key: dependency-cache
-          paths:
-            - "~/docker"
-      - run:
-          name: docker info
-          command: docker info
+
       - run:
           name: docker login
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+          command: |
+            set -eo pipefail
+
+            docker info
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+      - restore_cache:
+          keys:
+            - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+            - docker-tar-v2-{{ .Branch }}-
+            - docker-tar-v2-
+
       - run:
           name: Load docker image
           command: |
+            set -eo pipefail
+
             if [[ -e ~/docker/image.tar ]]; then
               docker load --input ~/docker/image.tar
             fi
+
       - run:
           name: Docker Build
-          command: docker build --rm=false -t "${CI_IMAGE_NAME}":latest .
+          command: |
+            set -eo pipefail
+
+            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+
+            cmd=(
+              docker build
+              --rm=false
+
+              --build-arg "TERRAFORM_VERSION=${TERRAFORM_VERSION}"
+              --build-arg "PACKER_VERSION=${PACKER_VERSION}"
+
+              -t "$build_tag"
+              .
+            )
+
+            "${cmd[@]}"
+
       - run:
           name: Save build
           command: |
-            mkdir -p ~/docker
-            docker save "${CI_IMAGE_NAME}":latest > ~/docker/image.tar
+            set -eo pipefail
+
+            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+
+            mkdir -pv ~/docker
+
+            # The history is also required to get each individual layer.
+            docker save "$build_tag" $(docker history -q "$build_tag" | grep -v '<missing>') > ~/docker/image.tar
+
+      - save_cache:
+          key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - "~/docker"
+
       - run:
           name: Execute acceptance test
           command: |
-            docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "gem list | grep covalence"
-            docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "aws --version"
-            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "packer version"
-            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "terraform version"
-            docker run --entrypoint /bin/sh "${CI_IMAGE_NAME}" -c "ls -l /usr/local/bin/terraform-providers/linux_amd64"
+            set -eo pipefail
+
+            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+
+            docker run --entrypoint /bin/sh "$build_tag" -c "gem list | grep covalence"
+            docker run --entrypoint /bin/sh "$build_tag" -c "aws --version"
+
+            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${build_tag}" -c "packer version"
+            docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${build_tag}" -c "terraform version"
+
       - deploy:
           name: Register CI image
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag "${CI_IMAGE_NAME}:latest" "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
-              docker push "${CI_IMAGE_NAME}":${PACKER_VERSION_TAG}.${TERRAFORM_VERSION_TAG}.${CIRCLE_BUILD_NUM}
-            fi
+            set -eo pipefail
+            shopt -s nullglob
+
+            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+
+            push_tags=()
+
+            case "$CIRCLE_BRANCH" in
+              master)
+                push_tags+=(
+                  "${CI_IMAGE_NAME}:${PACKER_VERSION}.${TERRAFORM_VERSION}.${CIRCLE_BUILD_NUM}"
+                  "latest"
+                )
+                ;;
+            esac
+
+            for tag in "${push_tags[@]}"; do
+              docker tag "$build_tag" "$tag"
+              docker push "$tag"
+            done
