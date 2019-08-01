@@ -61,7 +61,7 @@ jobs:
           command: |
             set -eo pipefail
 
-            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+            build_tag="${CI_IMAGE_NAME}:build"
 
             cmd=(
               docker build
@@ -81,7 +81,7 @@ jobs:
           command: |
             set -eo pipefail
 
-            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+            build_tag="${CI_IMAGE_NAME}:build"
 
             mkdir -pv ~/docker
 
@@ -98,7 +98,7 @@ jobs:
           command: |
             set -eo pipefail
 
-            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+            build_tag="${CI_IMAGE_NAME}:build"
 
             docker run --entrypoint /bin/sh "$build_tag" -c "gem list | grep covalence"
             docker run --entrypoint /bin/sh "$build_tag" -c "aws --version"
@@ -112,7 +112,7 @@ jobs:
             set -eo pipefail
             shopt -s nullglob
 
-            build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
+            build_tag="${CI_IMAGE_NAME}:build"
 
             push_tags=()
 
