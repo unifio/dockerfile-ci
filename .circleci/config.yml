@@ -114,20 +114,22 @@ jobs:
           name: Register CI image
           command: |
             set -eo pipefail
+            shopt -s nullglob
 
             build_tag="${CI_IMAGE_NAME}:build-${CIRCLE_BUILD_NUM}"
 
-            push_tags=(
-              "${CI_IMAGE_NAME}:${PACKER_VERSION}.${TERRAFORM_VERSION}.${CIRCLE_BUILD_NUM}"
-            )
+            push_tags=()
 
             case "$CIRCLE_BRANCH" in
               master)
-                for tag in "${push_tags[@]}"; do
-                  docker tag "$build_tag" "$tag"
-
-                  docker push "${CI_IMAGE_NAME}":${PACKER_VERSION}.${TERRAFORM_VERSION}.${CIRCLE_BUILD_NUM}
-                done
+                push_tags+=(
+                  "${CI_IMAGE_NAME}:${PACKER_VERSION}.${TERRAFORM_VERSION}.${CIRCLE_BUILD_NUM}"
+                  "latest"
+                )
                 ;;
             esac
 
+            for tag in "${push_tags[@]}"; do
+              docker tag "$build_tag" "$tag"
+              docker push "$tag"
+            done
