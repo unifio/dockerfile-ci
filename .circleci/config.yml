@@ -18,9 +18,9 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - source-v1-{{ .Branch }}-{{ .Revision }}
-            - source-v1-{{ .Branch }}-
-            - source-v1-
+            - source-v2-{{ .Branch }}-{{ .Revision }}
+            - source-v2-{{ .Branch }}-
+            - source-v2-
 
       - checkout
       - run:
@@ -32,7 +32,7 @@ jobs:
             git submodule update --init
 
       - save_cache:
-          key: source-v1-{{ .Branch }}-{{ .Revision }}
+          key: source-v2-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
 
@@ -49,9 +49,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - docker-tar-v1-{{ .Branch }}-{{ .Revision }}
-            - docker-tar-v1-{{ .Branch }}-
-            - docker-tar-v1-
+            - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+            - docker-tar-v2-{{ .Branch }}-
+            - docker-tar-v2-
 
       - run:
           name: Load docker image
@@ -93,7 +93,7 @@ jobs:
             docker save "$build_tag" > ~/docker/image.tar
 
       - save_cache:
-          key: docker-tar-v1-{{ .Branch }}-{{ .Revision }}
+          key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
           paths:
             - "~/docker"
 
