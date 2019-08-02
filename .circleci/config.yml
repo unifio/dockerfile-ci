@@ -99,7 +99,7 @@ jobs:
             # The history is also required to get each individual layer.
             # This is a multi-stage build, which means we need to cache both stages.
             image_ids=($(get-image-ids "$build_tag" "$build_tag-build"))
-            docker save "$build_tag" "${image_ids[@]}" > ~/docker/image-build.tar
+            docker save "$build_tag" "${image_ids[@]}" > ~/docker/image.tar
 
       - save_cache:
           key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
