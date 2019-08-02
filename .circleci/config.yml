@@ -42,20 +42,20 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker info
 
-      # - restore_cache:
-      #     keys:
-      #       - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
-      #       - docker-tar-v2-{{ .Branch }}-
-      #       - docker-tar-v2-
-      #
-      # - run:
-      #     name: Load docker image
-      #     command: |
-      #       set -eo pipefail
-      #
-      #       if [[ -e ~/docker/image.tar ]]; then
-      #         docker load --input ~/docker/image.tar
-      #       fi
+      - restore_cache:
+          keys:
+            - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+            - docker-tar-v2-{{ .Branch }}-
+            - docker-tar-v2-
+
+      - run:
+          name: Load docker image
+          command: |
+            set -eo pipefail
+
+            if [[ -e ~/docker/image.tar ]]; then
+              docker load --input ~/docker/image.tar
+            fi
 
       - run:
           name: Docker Build
@@ -64,35 +64,47 @@ jobs:
 
             build_tag="${CI_IMAGE_NAME}:build"
 
-            cmd=(
-              docker build
-              --rm=false
+            build() {
+              cmd=(
+                docker build
+                --rm=false
 
-              --build-arg "TERRAFORM_VERSION=${TERRAFORM_VERSION}"
-              --build-arg "PACKER_VERSION=${PACKER_VERSION}"
+                --build-arg "TERRAFORM_VERSION=${TERRAFORM_VERSION}"
+                --build-arg "PACKER_VERSION=${PACKER_VERSION}"
+              )
 
-              -t "$build_tag"
-              .
-            )
+              "${cmd[@]}" "$@"
+            }
 
-            "${cmd[@]}"
+            # This is a multi-stage build, which means we need to cache both stages.
+            build -t "$build_tag-build" --target build .
+            build -t "$build_tag" .
 
-      # - run:
-      #     name: Save build
-      #     command: |
-      #       set -eo pipefail
-      #
-      #       build_tag="${CI_IMAGE_NAME}:build"
-      #
-      #       mkdir -pv ~/docker
-      #
-      #       # The history is also required to get each individual layer.
-      #       docker save "$build_tag" $(docker history -q "$build_tag" | grep -v '<missing>') > ~/docker/image.tar
-      #
-      # - save_cache:
-      #     key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
-      #     paths:
-      #       - "~/docker"
+      - run:
+          name: Save build
+          command: |
+            set -eo pipefail
+
+            build_tag="${CI_IMAGE_NAME}:build"
+
+            mkdir -pv ~/docker
+
+            get-image-ids() {
+              local img
+              for img in "$@"; do
+                docker history -q "$img" | grep -v '<missing>' | xargs
+              done
+            }
+
+            # The history is also required to get each individual layer.
+            # This is a multi-stage build, which means we need to cache both stages.
+            image_ids=($(get-image-ids "$build_tag" "$build_tag-build"))
+            docker save "$build_tag" "${image_ids[@]}" > ~/docker/image-build.tar
+
+      - save_cache:
+          key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - "~/docker"
 
       - run:
           name: Execute acceptance test
