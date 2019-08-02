@@ -120,12 +120,10 @@ jobs:
               master)
                 push_tags+=(
                   "${CI_IMAGE_NAME}:${PACKER_VERSION}.${TERRAFORM_VERSION}.${CIRCLE_BUILD_NUM}"
-                  "latest"
+                  "${CI_IMAGE_NAME}:latest"
                 )
                 ;;
             esac
-
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
 
             for tag in "${push_tags[@]}"; do
               docker tag "$build_tag" "$tag"
