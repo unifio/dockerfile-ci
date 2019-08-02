@@ -42,20 +42,20 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker info
 
-      - restore_cache:
-          keys:
-            - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
-            - docker-tar-v2-{{ .Branch }}-
-            - docker-tar-v2-
-
-      - run:
-          name: Load docker image
-          command: |
-            set -eo pipefail
-
-            if [[ -e ~/docker/image.tar ]]; then
-              docker load --input ~/docker/image.tar
-            fi
+      # - restore_cache:
+      #     keys:
+      #       - docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+      #       - docker-tar-v2-{{ .Branch }}-
+      #       - docker-tar-v2-
+      #
+      # - run:
+      #     name: Load docker image
+      #     command: |
+      #       set -eo pipefail
+      #
+      #       if [[ -e ~/docker/image.tar ]]; then
+      #         docker load --input ~/docker/image.tar
+      #       fi
 
       - run:
           name: Docker Build
@@ -77,22 +77,22 @@ jobs:
 
             "${cmd[@]}"
 
-      - run:
-          name: Save build
-          command: |
-            set -eo pipefail
-
-            build_tag="${CI_IMAGE_NAME}:build"
-
-            mkdir -pv ~/docker
-
-            # The history is also required to get each individual layer.
-            docker save "$build_tag" $(docker history -q "$build_tag" | grep -v '<missing>') > ~/docker/image.tar
-
-      - save_cache:
-          key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - "~/docker"
+      # - run:
+      #     name: Save build
+      #     command: |
+      #       set -eo pipefail
+      #
+      #       build_tag="${CI_IMAGE_NAME}:build"
+      #
+      #       mkdir -pv ~/docker
+      #
+      #       # The history is also required to get each individual layer.
+      #       docker save "$build_tag" $(docker history -q "$build_tag" | grep -v '<missing>') > ~/docker/image.tar
+      #
+      # - save_cache:
+      #     key: docker-tar-v2-{{ .Branch }}-{{ .Revision }}
+      #     paths:
+      #       - "~/docker"
 
       - run:
           name: Execute acceptance test
