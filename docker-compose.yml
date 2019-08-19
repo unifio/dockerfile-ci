@@ -5,18 +5,22 @@ services:
       context: ./tools/covalence
       args:
         covalence_version: $COVALENCE_VERSION
+        alpine_version: $ALPINE_VERSION
+        ruby_version: $RUBY_VERSION
     image: "${COVALENCE_REGISTRY:-unifio/covalence}"
   packer:
     build:
       context: ./tools/packer
       args:
         packer_version: $PACKER_VERSION
+        alpine_version: $ALPINE_VERSION
     image: "${PACKER_REGISTRY:-unifio/packer}"
   terraform:
     build:
       context: ./tools/terraform
       args:
         terraform_version: $TERRAFORM_VERSION
+        alpine_version: $ALPINE_VERSION
     image: "${TERRAFORM_REGISTRY:-unifio/terraform}"
   ci-infra:
     build:
@@ -29,6 +33,7 @@ services:
         gosu_version: $GOSU_VERSION
         ruby_version: $RUBY_VERSION
         sops_version: $SOPS_VERSION
+        prefixout_version: $PREFIXOUT_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest"
     depends_on:
       - packer
@@ -43,6 +48,7 @@ services:
         gosu_version: $GOSU_VERSION
         node_version: $NODE_VERSION
         sops_version: $SOPS_VERSION
+        prefixout_version: $PREFIXOUT_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest-node"
     depends_on:
       - packer

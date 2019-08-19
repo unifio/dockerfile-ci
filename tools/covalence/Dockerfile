@@ -1,4 +1,6 @@
-FROM ruby:2.4-alpine
+ARG alpine_version
+ARG ruby_version
+FROM ruby:${ruby_version}-alpine${alpine_version}
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
@@ -31,7 +33,6 @@ RUN set -ex; \
   cd /tmp/build && \
   \
   mkdir -p /usr/local/external_bins && \
-
   # Docker base goodies
   wget -O - $HASHI_KEY_URL | gpg --import; \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip" && \
@@ -42,12 +43,10 @@ RUN set -ex; \
   unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
   cp bin/gosu /usr/local/bin && \
   cp bin/dumb-init /usr/local/bin && \
-
   # Covalence
   gem install covalence -v $COVALENCE_VERSION --no-document  && \
   gem install dotenv serverspec --no-document  && \
   gem install rspec ci_reporter_rspec --no-document  && \
-
   # Cleanup
   cd /tmp && \
   rm -rf /tmp/build && \

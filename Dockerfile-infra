@@ -6,12 +6,14 @@ ARG covalence_version
 ARG dumbinit_version
 ARG gosu_version
 ARG sops_version
+ARG prefixout_version
 
 ENV COVALENCE_VERSION $covalence_version
 ENV DUMBINIT_VERSION $dumbinit_version
 ENV GOSU_VERSION $gosu_version
 ENV GOSU_KEY B42F6819007F00F88E364FD4036A9C25BF357DD4
 ENV SOPS_VERSION $sops_version
+ENV PREFIXOUT_VERSION $prefixout_version
 
 RUN set -ex; \
   \
@@ -46,8 +48,11 @@ RUN set -ex; \
   \
   # Sops
   wget -O /tmp/build/sops "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux"; \
-  chmod +x sops;
-
+  chmod +x sops;\
+  # prefixout used in covaelnce for logging output of commands delivered
+  wget -qO /tmp/prefixout_0.1.0_linux_amd64.zip "https://github.com/unifio/prefixout/releases/download/v0.1.0/prefixout_0.1.0_linux_amd64.zip" && \
+  unzip -d /tmp/build /tmp/prefixout_0.1.0_linux_amd64.zip && \
+  chmod +x /tmp/build/prefixout;
 COPY tools/covalence/Gemfile /tmp/build
 COPY tools/covalence/Gemfile.lock /tmp/build
 COPY tools/covalence/.gemrc /tmp/build
@@ -71,6 +76,7 @@ ENV BUNDLE_PATH /opt/gems
 COPY --from=0 /tmp/build/gosu /usr/local/bin/
 COPY --from=0 /tmp/build/dumb-init /usr/local/bin/
 COPY --from=0 /tmp/build/sops /usr/local/bin/
+COPY --from=0 /tmp/build/prefixout /usr/local/bin/
 COPY --from=0 /tmp/build/Gemfile /opt/
 COPY --from=0 /tmp/build/Gemfile.lock /opt/
 COPY --from=0 /tmp/build/.gemrc /opt/
@@ -95,29 +101,29 @@ RUN set -ex; \
     openssl \
     openssh \
     python-dev \
+    python3-dev \
     ruby-dev \
     tar \
     unzip \
     zip \
     wget \
+    docker-compose \
   '; \
   apk add --no-cache --update $fetchDeps && \
+  # pip
+  echo "**** install pip ****" && \
+  python3 -m ensurepip && \
+  rm -r /usr/lib/python*/ensurepip && \
+  pip3 install --no-cache --upgrade pip setuptools wheel && \
+  pip3 install --no-cache --upgrade --ignore-installed awscli && \
   \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
   # Install glibc
   wget -q -O /etc/apk/keys/sgerrand.rsa.pub "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" && \
-  wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk" && \
-  apk add glibc-2.23-r3.apk && \
-  \
-  # Install PIP packages
-  curl -O https://bootstrap.pypa.io/get-pip.py && \
-  python get-pip.py && \
-  pip install \
-    awscli \
-    docker-compose && \
-  \
+  wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" && \
+  apk add glibc-2.29-r0.apk && \
   # Install gem packages
   bundle check --gemfile=/opt/Gemfile --path=/opt/gems || bundle install --gemfile=/opt/Gemfile --path=/opt/gems --jobs=4 --retry=3 && \
   \
@@ -127,7 +133,6 @@ RUN set -ex; \
 
 COPY pkr_files/packer* /usr/local/bin/
 COPY tf_files/terraform* /usr/local/bin/
-COPY other_bins/* /usr/local/bin/
 COPY tools/covalence/entrypoint.sh /usr/local/bin/
 
 VOLUME /data
