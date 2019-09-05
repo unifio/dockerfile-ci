@@ -10,7 +10,7 @@ executors:
       CI_REGISTRY: 'unifio/ci'
       CI_MAJOR_VERSION: '4'
       COVALENCE_REGISTRY: 'unifio/covalence'
-      COVALENCE_VERSION: '0.9.3'
+      COVALENCE_VERSION: '0.9.4'
       DUMBINIT_VERSION: '1.2.2'
       GOSU_VERSION: '1.11'
       NODE_VERSION: '10.16.1'
@@ -19,7 +19,7 @@ executors:
       RUBY_VERSION: '2.5.5'
       SOPS_VERSION: '3.3.1'
       TERRAFORM_REGISTRY: 'unifio/terraform'
-      TERRAFORM_VERSION: '0.12.7'
+      TERRAFORM_VERSION: '0.12.8'
       PREFIXOUT_VERSION: '0.1.0'
 orbs:
   aws-cli: circleci/aws-cli@0.1.13

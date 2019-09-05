@@ -12,7 +12,16 @@ pkr_image=${PKR_IMAGE:-'unifio/packer'}
 artifact_tool=${ARTIFACT_TOOL:-'unifio/promote-atlas-artifact'}
 artifact_tool_version=${ARTIFACT_TOOL_VERSION:-'latest'}
 circle_token=${CIRCLE_TOKEN:-""}
-
+function rmContainer () {
+    local rmContainerName
+    local rmContainerSuffix
+    rmContainerName=$1
+    rmContainerSuffix=$2
+    if docker ps -lqq --filter="name=${rmContainerName}${rmContainerSuffix}"; then
+      echo "Removing Container ${rmContainerName}${rmContainerSuffix} before running."
+      docker rm -vf "$(docker ps -lqq --filter="name=${rmContainerName}${rmContainerSuffix}")"
+    fi
+}
 if [[ $copy_node_bins == 'true' ]]; then
   if [[ "$unamestr" == 'Linux' ]]; then
     platform='linux'
@@ -65,10 +74,12 @@ fi
 
 # now take care of the terraform files.
 if [[ $tf_version && $tf_image ]]; then
+  rmContainer "terraform" "${containerSuffix}"
   echo "Running the terraform container and naming it if it hasn't been already."
   docker run --name terraform "${tf_image}":"${tf_version}" version 2>/dev/null
   # veirfy that the container ran and grab its ID
   matchingStarted=$(docker ps -lqa --filter="name=terraform${containerSuffix}" \
+    --no-trunc \
     --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
   echo "Terraform container ran ${matchingStarted}"
   if [[ $matchingStarted ]];then
@@ -78,10 +89,12 @@ if [[ $tf_version && $tf_image ]]; then
 fi
 # now take care of the packer files
 if [[ $pkr_version && $pkr_image ]]; then
+  rmContainer "packer" "${containerSuffix}"
   echo "Running the packer container and naming it if it hasn't been already."
   docker run --name packer "${pkr_image}":"${pkr_version}" version 2>/dev/null
   # veirfy that the container ran and grab its ID
   matchingStarted=$(docker ps -lqa --filter="name=packer${containerSuffix}" \
+    --no-trunc \
     --format="{{.Names}},{{.ID}},{{.Image}},{{.Command}}")
   echo "packer container ran ${matchingStarted}"
   if [[ $matchingStarted ]];then
