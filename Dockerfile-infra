@@ -62,7 +62,7 @@ RUN set -ex; \
   cd /tmp/build && \
   \
   # Ruby Gems
-  bundle install --path=/opt/gems --jobs=4 --retry=3
+  bundle install --path=/opt/gems --binstubs=/opt/bin --jobs=4 --retry=3
 
 FROM ruby:${ruby_version}-alpine${alpine_version}
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
@@ -72,6 +72,7 @@ ARG covalence_version
 ENV COVALENCE_VERSION $covalence_version
 ENV BUNDLE_GEMFILE /opt/Gemfile
 ENV BUNDLE_PATH /opt/gems
+ENV PATH /opt/bin:$PATH
 
 COPY --from=0 /tmp/build/gosu /usr/local/bin/
 COPY --from=0 /tmp/build/dumb-init /usr/local/bin/
@@ -81,6 +82,7 @@ COPY --from=0 /tmp/build/Gemfile /opt/
 COPY --from=0 /tmp/build/Gemfile.lock /opt/
 COPY --from=0 /tmp/build/.gemrc /opt/
 COPY --from=0 /opt/gems /opt/gems
+COPY --from=0 /opt/bin /opt/bin
 
 RUN set -ex; \
   \
@@ -125,7 +127,7 @@ RUN set -ex; \
   wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" && \
   apk add glibc-2.29-r0.apk && \
   # Install gem packages
-  bundle check --gemfile=/opt/Gemfile --path=/opt/gems || bundle install --gemfile=/opt/Gemfile --path=/opt/gems --jobs=4 --retry=3 && \
+  bundle check --gemfile=/opt/Gemfile --path=/opt/gems || bundle install --binstubs=/opt/bin --gemfile=/opt/Gemfile --path=/opt/gems --jobs=4 --retry=3 && \
   \
   # Cleanup
   cd / && \
