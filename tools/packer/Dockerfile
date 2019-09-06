@@ -61,11 +61,11 @@ RUN set -ex; \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
-  wget -q "https://github.com/unifio/packer-post-processor-vagrant-s3/releases/download/v.0.0.1/packer-post-processor-vagrant-s3_0.0.1_linux_amd64.zip" && \
-  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.0.1/packer-provisioner-serverspec_0.0.1_linux_amd64.zip" && \
+  wget -q "https://github.com/lmars/packer-post-processor-vagrant-s3/releases/download/1.4.0/packer-post-processor-vagrant-s3-1.4.0-linux-amd64.zip" && \
+  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.1.0/packer-provisioner-serverspec_0.1.0_Linux_x86_64.tar.gz" && \
   \
-  unzip -o packer-post-processor-vagrant-s3_0.0.1_linux_amd64.zip && \
-  unzip -o packer-provisioner-serverspec_0.0.1_linux_amd64.zip && \
+  unzip -o packer-post-processor-vagrant-s3-1.4.0-linux-amd64.zip && \
+  tar xvfz packer-provisioner-serverspec_0.1.0_Linux_x86_64.tar.gz && \
   chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
   mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
   gem install io-console bundler rake rspec serverspec --no-document  && \
