@@ -117,7 +117,7 @@ RUN set -ex; \
   python3 -m ensurepip && \
   rm -r /usr/lib/python*/ensurepip && \
   pip3 install --no-cache --upgrade pip setuptools wheel && \
-  pip3 install --no-cache --upgrade --ignore-installed awscli && \
+  pip3 install --no-cache --upgrade --ignore-installed awscli ec2instanceconnectcli && \
   \
   mkdir -p /tmp/build && \
   cd /tmp/build && \

@@ -52,7 +52,7 @@ GEM
     concurrent-ruby (1.1.5)
     consul_loader (1.0.0)
       rest-client
-    covalence (0.9.4)
+    covalence (0.9.7)
       activemodel (~> 5.2.0)
       activesupport (~> 5.2.0)
       aws-sdk-s3 (~> 1)
