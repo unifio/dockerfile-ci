@@ -76,9 +76,7 @@ describe 'Node.js CI Configuration' do
       openssh
       python-dev
       ruby
-      ruby-bundler
       ruby-dev
-      ruby-io-console
       tar
       zip
       unzip

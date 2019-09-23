@@ -101,6 +101,8 @@ COPY --from=0 /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=0 /usr/local/share/doc        /usr/local/share/doc
 COPY --from=0 /usr/local/share/systemtap  /usr/local/share/systemtap
 COPY --from=0 /usr/local/bin/          /usr/local/bin/
+COPY --from=0 /opt/yarn-v1.17.3 /opt/yarn-v1.17.3
+
 RUN set -ex; \
   \
   fetchDeps=' \
