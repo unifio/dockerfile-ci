@@ -55,6 +55,7 @@ RUN set -ex; \
     build-base \
     ruby-dev \
     ruby \
+    ruby-etc \
   '; \
   apk add --no-cache --update $fetchDeps && \
   \

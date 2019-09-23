@@ -2,4 +2,4 @@
 
 # Globals
 region: 'us-east-1'
-s3_state_bucket: 'unifio-uat'
+s3_state_bucket: "unifio-uat-%{alias('region')}"

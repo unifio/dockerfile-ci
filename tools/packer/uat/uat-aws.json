@@ -27,7 +27,7 @@
     {
       "type": "vagrant-s3",
       "region": "us-east-1",
-      "bucket": "unifio-basebox",
+      "bucket": "unifio-basebox-us-east-1",
       "manifest": "manifests/packer-container-uat",
       "box_name": "unifio/packer-container-uat",
       "box_dir": "boxes",

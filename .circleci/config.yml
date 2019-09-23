@@ -8,7 +8,7 @@ executors:
     environment:
       ALPINE_VERSION: '3.10'
       CI_REGISTRY: 'unifio/ci'
-      CI_MAJOR_VERSION: '4'
+      CI_MAJOR_VERSION: '5'
       COVALENCE_REGISTRY: 'unifio/covalence'
       COVALENCE_VERSION: '0.9.7'
       DUMBINIT_VERSION: '1.2.2'
@@ -21,15 +21,14 @@ executors:
       TERRAFORM_REGISTRY: 'unifio/terraform'
       TERRAFORM_VERSION: '0.12.9'
       PREFIXOUT_VERSION: '0.1.0'
-orbs:
-  aws-cli: circleci/aws-cli@0.1.13
+
 jobs:
   build_covalence:
     executor: alpine
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.09.3
       - run:
           name: Install dependencies
           command: |
@@ -110,7 +109,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.09.3
       - run:
           name: Install dependencies
           command: |
@@ -188,7 +187,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.09.3
       - run:
           name: Install dependencies
           command: |
@@ -265,7 +264,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.09.3
       - run:
           name: Install dependencies
           command: |
@@ -286,15 +285,14 @@ jobs:
               ruby-io-console \
               ruby-json \
               tar \
-              bash
-
+              bash \
+              docker-compose
             python3 -m ensurepip && \
             rm -r /usr/lib/python*/ensurepip && \
             pip3 install --upgrade pip setuptools && \
             if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
             if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-            pip install --upgrade \
-              docker-compose
+            echo "**** install pip python 3 apps here if needed ****"
             gem install bundler --no-document
       - attach_workspace:
           at: /workspace
@@ -376,7 +374,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.09.3
       - run:
           name: Install dependencies
           command: |
