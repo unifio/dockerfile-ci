@@ -1,4 +1,5 @@
-FROM alpine:3.6
+ARG alpine_version
+FROM alpine:${alpine_version}
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 ARG terraform_version

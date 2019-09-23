@@ -1,13 +1,13 @@
 source 'https://rubygems.org' do
-  gem 'covalence', "#{ENV['COVALENCE_VERSION']}"
-  gem 'awesome_print', '~> 1.8.0'
-  gem 'bigdecimal', '~> 1.3.2'
-  gem 'ci_reporter_rspec', '~> 1.0.0'
-  gem 'consul_loader', '~> 1.0.0'
-  gem 'dockerspec', '~> 0.5.0'
-  gem 'dotenv', '~> 2.4.0'
-  gem 'rspec', '~> 3.7.0'
-  gem 'rspec_junit_formatter', '~> 0.4.1'
-  gem 'serverspec', '~> 2.41.3'
-  gem 'thor', '~> 0.20.0'
+  gem 'awesome_print'
+  gem 'bigdecimal'
+  gem 'ci_reporter_rspec'
+  gem 'consul_loader'
+  gem 'covalence', ENV['COVALENCE_VERSION'.to_s]
+  gem 'dockerspec'
+  gem 'dotenv'
+  gem 'rspec'
+  gem 'rspec_junit_formatter'
+  gem 'serverspec'
+  gem 'thor'
 end

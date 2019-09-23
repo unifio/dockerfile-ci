@@ -13,7 +13,6 @@ describe 'Node.js CI Configuration' do
       packer
       packer-post-processor-vagrant-s3
       packer-provisioner-serverspec
-      promote-atlas-artifact
       terraform
       yarn
     )
@@ -77,9 +76,7 @@ describe 'Node.js CI Configuration' do
       openssh
       python-dev
       ruby
-      ruby-bundler
       ruby-dev
-      ruby-io-console
       tar
       zip
       unzip
@@ -94,7 +91,6 @@ describe 'Node.js CI Configuration' do
 
     @pip_packages = %w(
       awscli
-      docker-compose
     )
 
     @pip_packages.each do |pkg|
