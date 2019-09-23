@@ -396,16 +396,15 @@ jobs:
               ruby-io-console \
               ruby-json \
               tar \
-              bash
-
+              bash \
+              docker-compose
             python3 -m ensurepip && \
             rm -r /usr/lib/python*/ensurepip && \
             pip3 install --upgrade pip setuptools && \
             if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
             if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-            pip install --upgrade \
-              docker-compose
-            gem install bundler --no-document
+            echo "**** install pip python 3 apps here if needed ****"
+            gem install bundler:${BUNDLER_VERSION} --no-document
       - attach_workspace:
           at: /workspace
       - restore_cache:
