@@ -21,6 +21,7 @@ executors:
       TERRAFORM_REGISTRY: 'unifio/terraform'
       TERRAFORM_VERSION: '0.12.9'
       PREFIXOUT_VERSION: '0.1.0'
+      BUNDLER_VERSION: '1.17.3'
 
 jobs:
   build_covalence:
@@ -293,7 +294,7 @@ jobs:
             if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
             if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
             echo "**** install pip python 3 apps here if needed ****"
-            gem install bundler --no-document
+            gem install bundler:${BUNDLER_VERSION} --no-document
       - attach_workspace:
           at: /workspace
       - restore_cache:

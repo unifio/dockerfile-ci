@@ -13,7 +13,6 @@ describe 'Infrastructure CI Configuration' do
       packer
       packer-post-processor-vagrant-s3
       packer-provisioner-serverspec
-      promote-atlas-artifact
       rake
       ruby
       terraform
@@ -77,7 +76,6 @@ describe 'Infrastructure CI Configuration' do
 
     @pip_packages = %w(
       awscli
-      docker-compose
     )
 
     @pip_packages.each do |pkg|

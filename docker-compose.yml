@@ -51,6 +51,9 @@ services:
         node_version: $NODE_VERSION
         sops_version: $SOPS_VERSION
         prefixout_version: $PREFIXOUT_VERSION
+        bundler_version: $BUNDLER_VERSION
+        alpine_version: $ALPINE_VERSION
+        ruby_version: $RUBY_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest-node"
     depends_on:
       - packer
