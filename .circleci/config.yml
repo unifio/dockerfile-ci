@@ -1,9 +1,5 @@
 
 version: 2.1
-## Unifio Teams OSS channel Notification Integration
-notify:
-  webhooks:
-    - https://outlook.office.com/webhook/dd35b635-96f6-4c32-a768-e1628816f2ee@770c319b-c04d-4209-80e5-4917d4adc5fd/CircleCI/a21015528b5b496985256bc4ca19c47b/0e9e9e57-1803-4643-9821-e96bf3a42c19
 executors:
   alpine:
     docker:
