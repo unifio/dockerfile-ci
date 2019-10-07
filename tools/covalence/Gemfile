@@ -1,0 +1,12 @@
+source 'https://rubygems.org' do
+  gem 'awesome_print'
+  gem 'thor'
+  gem 'ci_reporter_rspec'
+  gem 'consul_loader'
+  gem 'dotenv'
+  gem 'rspec'
+  gem 'rspec_junit_formatter'
+  gem 'serverspec'
+  # Pulling covalence directly from git repo. See DEVOPS-2421
+  gem 'covalence', git: 'https://github.com/whistlelabs/covalence'
+end

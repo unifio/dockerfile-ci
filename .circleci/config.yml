@@ -7,9 +7,15 @@ jobs:
 
     environment:
       CI_IMAGE_NAME: 'whistle/ci'
-      PACKER_VERSION: 1.1.0
-      TERRAFORM_VERSION: 0.12.6
-
+      PACKER_VERSION: '1.1.0'
+      TERRAFORM_VERSION: '0.12.6'
+      ALPINE_VERSION: '3.10'
+      COVALENCE_VERSION: '0.9.7'
+      DUMBINIT_VERSION: '1.2.2'
+      GOSU_VERSION: '1.11'
+      RUBY_VERSION: '2.5.5'
+      SOPS_VERSION: '3.3.1'
+      BUNDLER_VERSION: '1.17.3'
     steps:
       - restore_cache:
           keys:
@@ -68,9 +74,16 @@ jobs:
               cmd=(
                 docker build
                 --rm=false
-
-                --build-arg "TERRAFORM_VERSION=${TERRAFORM_VERSION}"
-                --build-arg "PACKER_VERSION=${PACKER_VERSION}"
+                --build-arg CI_IMAGE_NAME
+                --build-arg PACKER_VERSION
+                --build-arg TERRAFORM_VERSION
+                --build-arg ALPINE_VERSION
+                --build-arg COVALENCE_VERSION
+                --build-arg DUMBINIT_VERSION
+                --build-arg GOSU_VERSION
+                --build-arg RUBY_VERSION
+                --build-arg SOPS_VERSION
+                --build-arg BUNDLER_VERSION
               )
 
               "${cmd[@]}" "$@"
@@ -78,6 +91,7 @@ jobs:
 
             # This is a multi-stage build, which means we need to cache both stages.
             build -t "$build_tag-build" --target build .
+            build -t "$build_tag-covbuild" --target covbuild .
             build -t "$build_tag" .
 
       - run:
@@ -98,7 +112,7 @@ jobs:
 
             # The history is also required to get each individual layer.
             # This is a multi-stage build, which means we need to cache both stages.
-            image_ids=($(get-image-ids "$build_tag" "$build_tag-build"))
+            image_ids=($(get-image-ids "$build_tag" "$build_tag-build" "$build_tag-covbuild"))
             docker save "$build_tag" "${image_ids[@]}" > ~/docker/image.tar
 
       - save_cache:
@@ -113,7 +127,7 @@ jobs:
 
             build_tag="${CI_IMAGE_NAME}:build"
 
-            docker run --entrypoint /bin/sh "$build_tag" -c "gem list | grep covalence"
+            docker run --entrypoint /bin/sh "$build_tag" -c "bundle info covalence"
             docker run --entrypoint /bin/sh "$build_tag" -c "aws --version"
 
             docker run -e CHECKPOINT_DISABLE=1 --entrypoint /bin/sh "${build_tag}" -c "packer version"
