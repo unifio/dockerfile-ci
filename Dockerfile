@@ -30,7 +30,7 @@ RUN set -exv \
  # terraform providers
  && install-zipped-bin ./terraform-providers \
     terraform-provider-archive:1.2.2 \
-    terraform-provider-aws:2.16.0 \
+    terraform-provider-aws:2.31.0 \
     terraform-provider-github:2.1.0 \
     terraform-provider-google:2.7.0 \
     terraform-provider-newrelic:1.5.0 \

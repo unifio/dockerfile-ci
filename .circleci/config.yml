@@ -8,7 +8,7 @@ jobs:
     environment:
       CI_IMAGE_NAME: 'whistle/ci'
       PACKER_VERSION: '1.1.0'
-      TERRAFORM_VERSION: '0.12.6'
+      TERRAFORM_VERSION: '0.12.9'
       ALPINE_VERSION: '3.10'
       COVALENCE_VERSION: '0.9.7'
       DUMBINIT_VERSION: '1.2.2'
