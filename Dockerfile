@@ -154,6 +154,7 @@ RUN set -exv; \
     git \
     postgresql-client \
     gnupg \
+    openssh \
     openssl \
     unzip \
   '; \
