@@ -117,15 +117,18 @@ RUN set -ex; \
   cd /tmp/build && \
   \
   # Ruby Gems
+  # DEVOPS-2520 Output Covalence SHA to prevent stale cache
+  echo "**** install bundles and covalence ${COVALENCE_VERSION} ****" && \
   bundle install --path=/opt/gems --binstubs=/opt/bin --jobs=4 --retry=3
 
 FROM ruby:${RUBY_VERSION}-alpine${ALPINE_VERSION}
+ARG COVALENCE_VERSION
 
 LABEL packer_version="${PACKER_VERSION}"
 LABEL terraform_version="${TERRAFORM_VERSION}"
 LABEL maintainer="WhistleLabs, Inc. <devops@whistle.com>"
 
-ENV COVALENCE_VERSION $covalence_version
+ENV COVALENCE_VERSION $COVALENCE_VERSION
 ENV BUNDLE_GEMFILE /opt/Gemfile
 ENV BUNDLE_PATH /opt/gems
 ENV PATH /opt/bin:$PATH
@@ -176,7 +179,8 @@ RUN mkdir -p /usr/local/bin && \
     wget -q "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" && \
     apk add glibc-2.29-r0.apk && \
     apk add postgresql-client && \
-    # Install gem packages
+    # Install gem packages and covalence if not already present
+    echo "**** install bundles and covalence ${COVALENCE_VERSION} ****" && \
     bundle check --gemfile=/opt/Gemfile --path=/opt/gems || bundle install --binstubs=/opt/bin --gemfile=/opt/Gemfile --path=/opt/gems --jobs=4 --retry=3 && \
     \
     # Cleanup

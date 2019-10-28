@@ -10,7 +10,6 @@ jobs:
       PACKER_VERSION: '1.1.0'
       TERRAFORM_VERSION: '0.12.9'
       ALPINE_VERSION: '3.10'
-      COVALENCE_VERSION: '0.9.7'
       DUMBINIT_VERSION: '1.2.2'
       GOSU_VERSION: '1.11'
       RUBY_VERSION: '2.5.5'
@@ -69,7 +68,8 @@ jobs:
             set -eo pipefail
 
             build_tag="${CI_IMAGE_NAME}:build"
-
+            # DEVOPS-2520 Grab the latest short sha for covalence
+            COVALENCE_VERSION=$(wget -qO- https://api.github.com/repos/WhistleLabs/covalence/commits/HEAD | jq -r '.sha' |  cut -b -7)
             build() {
               cmd=(
                 docker build
@@ -78,14 +78,13 @@ jobs:
                 --build-arg PACKER_VERSION
                 --build-arg TERRAFORM_VERSION
                 --build-arg ALPINE_VERSION
-                --build-arg COVALENCE_VERSION
+                --build-arg COVALENCE_VERSION=$COVALENCE_VERSION
                 --build-arg DUMBINIT_VERSION
                 --build-arg GOSU_VERSION
                 --build-arg RUBY_VERSION
                 --build-arg SOPS_VERSION
                 --build-arg BUNDLER_VERSION
               )
-
               "${cmd[@]}" "$@"
             }
 
@@ -126,7 +125,9 @@ jobs:
             set -eo pipefail
 
             build_tag="${CI_IMAGE_NAME}:build"
-
+            # DEVOPS-2520 Get latest covalence head sha to verify it matches whats installed
+            COVALENCE_VERSION=$(wget -qO- https://api.github.com/repos/WhistleLabs/covalence/commits/HEAD | jq -r '.sha' |  cut -b -7)
+            echo "latest covalence sha is: $COVALENCE_VERSION"
             docker run --entrypoint /bin/sh "$build_tag" -c "bundle info covalence"
             docker run --entrypoint /bin/sh "$build_tag" -c "aws --version"
 
