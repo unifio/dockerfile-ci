@@ -37,14 +37,19 @@ RUN set -exv \
     terraform-provider-null:2.1.2 \
     terraform-provider-template:2.1.2 \
  && :
-
+# @lmars releases
+RUN set -exv \
+ && export uri_template='https://github.com/lmars/${name}/releases/download/${full_ver}/${name}-${ver}-${arch}.zip' \
+ # packer plugins
+ && arch=linux-amd64 install-zipped-bin ./bin \
+    packer-post-processor-vagrant-s3:1.4.0 \
+ && :
 # @WhistleLabs github releases
 RUN set -exv \
  && export uri_template='https://github.com/WhistleLabs/${name}/releases/download/v${full_ver}/${name}_${ver}_${arch}.zip' \
  # packer plugins
  && install-zipped-bin ./bin \
-    packer-post-processor-vagrant-s3:0.0.1-whistle0 \
-    packer-provisioner-serverspec:0.0.1-whistle0 \
+    packer-provisioner-serverspec:0.1.1-whistle0 \
     prefixout:0.1.0 \
  # terraform providers
  && install-zipped-bin ./terraform-providers \
