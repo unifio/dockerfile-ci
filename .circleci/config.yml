@@ -19,7 +19,7 @@ executors:
       RUBY_VERSION: '2.5.5'
       SOPS_VERSION: '3.3.1'
       TERRAFORM_REGISTRY: 'unifio/terraform'
-      TERRAFORM_VERSION: '0.12.19'
+      TERRAFORM_VERSION: '0.12.20'
       PREFIXOUT_VERSION: '0.1.0'
       BUNDLER_VERSION: '1.17.3'
 
@@ -78,6 +78,8 @@ jobs:
             docker exec uat sh -c "apk add --no-cache --update unzip && \
               wget -q \"https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip\" && \
               unzip -d /usr/local/bin terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+            docker exec uat sh -c 'sed -i "s:uat:uat1:g" /data/data/stacks/vpc.yaml'
+            docker exec uat sh -c 'sed -i "s:172.16.0.0/21:172.16.8.0/21:g" /data/data/stacks/vpc.yaml'
             docker exec uat sh -c 'rake ci'
             docker exec uat sh -c 'rake uat:apply'
             docker exec uat sh -c 'rake uat:destroy'
