@@ -3,3 +3,5 @@ tf_files/**
 node_files/**
 node_files.tar.gz
 other_bins/**
+.env.*
+bin/**
