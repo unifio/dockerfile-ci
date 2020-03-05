@@ -46,7 +46,7 @@ RUN set -ex; \
   grep docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
   unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
   # Sops
-  wget -O /tmp/build/sops "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux"; \
+  wget -O /tmp/build/sops "https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux"; \
   chmod +x sops;\
   # prefixout used in covaelnce for logging output of commands delivered
   wget -qO /tmp/prefixout_0.1.0_linux_amd64.zip "https://github.com/unifio/prefixout/releases/download/v0.1.0/prefixout_0.1.0_linux_amd64.zip" && \
