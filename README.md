@@ -16,7 +16,7 @@ Update the global environment variables from the [.circleci/config.xml](./.circl
       PACKER_REGISTRY: 'unifio/packer'
       PACKER_VERSION: '1.4.5'
       RUBY_VERSION: '2.5.5'
-      SOPS_VERSION: '3.3.1'
+      SOPS_VERSION: '3.5.0'
       TERRAFORM_REGISTRY: 'unifio/terraform'
       TERRAFORM_VERSION: '0.12.21'
 ```
