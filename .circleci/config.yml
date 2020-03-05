@@ -19,7 +19,7 @@ executors:
       RUBY_VERSION: '2.5.5'
       SOPS_VERSION: '3.5.0'
       TERRAFORM_REGISTRY: 'unifio/terraform'
-      TERRAFORM_VERSION: '0.12.21'
+      TERRAFORM_VERSION: '0.12.22'
       PREFIXOUT_VERSION: '0.1.0'
       BUNDLER_VERSION: '1.17.3'
 
