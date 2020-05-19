@@ -1,4 +1,10 @@
 ARG alpine_version
+# Golang Build stage for vagrants3 plugin
+FROM golang:alpine AS golang-build
+RUN apk --no-cache add build-base git bzr mercurial gcc && \
+GO111MODULE=on go get github.com/lmars/packer-post-processor-vagrant-s3 && \
+file /go/bin/packer-post-processor-vagrant-s3
+
 FROM alpine:${alpine_version}
 LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
@@ -62,13 +68,11 @@ RUN set -ex; \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
-  wget -q "https://github.com/lmars/packer-post-processor-vagrant-s3/releases/download/1.4.0/packer-post-processor-vagrant-s3-1.4.0-linux-amd64.zip" && \
-  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.1.1/packer-provisioner-serverspec_0.1.1_linux_amd64.tar.gz" && \
+  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.2.0/packer-provisioner-serverspec_0.2.0_linux_amd64.tar.gz" && \
   \
-  unzip -o packer-post-processor-vagrant-s3-1.4.0-linux-amd64.zip && \
-  tar xvfz packer-provisioner-serverspec_0.1.1_linux_amd64.tar.gz && \
-  chmod +x packer-post-processor-vagrant-s3 packer-provisioner-serverspec && \
-  mv packer-post-processor-vagrant-s3 packer-provisioner-serverspec /usr/local/bin && \
+  tar xvfz packer-provisioner-serverspec_0.2.0_linux_amd64.tar.gz && \
+  chmod +x packer-provisioner-serverspec && \
+  mv packer-provisioner-serverspec /usr/local/bin && \
   gem install io-console bundler rake rspec serverspec --no-document  && \
   \
   cd / && \
@@ -89,7 +93,7 @@ RUN set -ex; \
   cd / && \
   rm -rf /tmp/build && \
   docker -v
-
+COPY --from=golang-build /go/bin/packer-post-processor-vagrant-s3 /usr/local/bin
 COPY entrypoint.sh /usr/local/bin/
 
 VOLUME ["/data"]
