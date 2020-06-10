@@ -8,7 +8,6 @@ services:
         alpine_version: $ALPINE_VERSION
         ruby_version: $RUBY_VERSION
         sops_version: $SOPS_VERSION
-        prefixout_version: $PREFIXOUT_VERSION
     image: "${COVALENCE_REGISTRY:-unifio/covalence}"
   packer:
     build:
@@ -35,7 +34,6 @@ services:
         gosu_version: $GOSU_VERSION
         ruby_version: $RUBY_VERSION
         sops_version: $SOPS_VERSION
-        prefixout_version: $PREFIXOUT_VERSION
     image: "${CI_REGISTRY:-unifio/ci}:latest"
     depends_on:
       - packer
@@ -50,7 +48,6 @@ services:
         gosu_version: $GOSU_VERSION
         node_version: $NODE_VERSION
         sops_version: $SOPS_VERSION
-        prefixout_version: $PREFIXOUT_VERSION
         bundler_version: $BUNDLER_VERSION
         alpine_version: $ALPINE_VERSION
         ruby_version: $RUBY_VERSION

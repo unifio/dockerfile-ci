@@ -1,7 +1,7 @@
 ARG alpine_version
 # Golang Build stage for vagrants3 plugin
 FROM golang:alpine AS golang-build
-RUN apk --no-cache add build-base git bzr mercurial gcc && \
+RUN apk --no-cache add build-base git mercurial gcc && \
 GO111MODULE=on go get github.com/lmars/packer-post-processor-vagrant-s3 && \
 file /go/bin/packer-post-processor-vagrant-s3
 

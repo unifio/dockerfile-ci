@@ -7,7 +7,6 @@ ARG covalence_version
 ARG dumbinit_version
 ARG gosu_version
 ARG sops_version
-ARG prefixout_version
 ARG bundler_version
 
 ENV COVALENCE_VERSION $covalence_version
@@ -15,7 +14,6 @@ ENV DUMBINIT_VERSION $dumbinit_version
 ENV GOSU_VERSION $gosu_version
 ENV GOSU_KEY B42F6819007F00F88E364FD4036A9C25BF357DD4
 ENV SOPS_VERSION $sops_version
-ENV PREFIXOUT_VERSION $prefixout_version
 ENV BUNDLER_VERSION $bundler_version
 
 RUN set -ex; \
@@ -62,11 +60,7 @@ RUN set -ex; \
   \
   # Sops
   wget -O /tmp/build/sops "https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux"; \
-  chmod +x sops;\
-  # prefixout used in covaelnce for logging output of commands delivered
-  wget -qO /tmp/prefixout_0.1.0_linux_amd64.zip "https://github.com/unifio/prefixout/releases/download/v0.1.0/prefixout_0.1.0_linux_amd64.zip" && \
-  unzip -d /tmp/build /tmp/prefixout_0.1.0_linux_amd64.zip && \
-  chmod +x /tmp/build/prefixout;
+  chmod +x sops;
 COPY tools/covalence/Gemfile /tmp/build
 COPY tools/covalence/Gemfile.lock /tmp/build
 COPY tools/covalence/.gemrc /tmp/build
@@ -91,7 +85,6 @@ ENV PATH /opt/bin:$PATH
 COPY --from=0 /tmp/build/gosu /usr/local/bin/
 COPY --from=0 /tmp/build/dumb-init /usr/local/bin/
 COPY --from=0 /tmp/build/sops /usr/local/bin/
-COPY --from=0 /tmp/build/prefixout /usr/local/bin/
 COPY --from=0 /tmp/build/Gemfile /opt/
 COPY --from=0 /tmp/build/Gemfile.lock /opt/
 COPY --from=0 /tmp/build/.gemrc /opt/
