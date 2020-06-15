@@ -55,6 +55,7 @@ RUN set -ex; \
   rm -rf /tmp/build && \
   rm -rf /root/.gnupg
 
+ENV PACKER_SERVERSPEC_VERSION 0.2.1
 RUN set -ex; \
   \
   fetchDeps=' \
@@ -68,9 +69,9 @@ RUN set -ex; \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
-  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v0.2.0/packer-provisioner-serverspec_0.2.0_linux_amd64.tar.gz" && \
+  wget -q "https://github.com/unifio/packer-provisioner-serverspec/releases/download/v${PACKER_SERVERSPEC_VERSION}/packer-provisioner-serverspec_${PACKER_SERVERSPEC_VERSION}_linux_amd64.tar.gz" && \
   \
-  tar xvfz packer-provisioner-serverspec_0.2.0_linux_amd64.tar.gz && \
+  tar xvfz packer-provisioner-serverspec_${PACKER_SERVERSPEC_VERSION}_linux_amd64.tar.gz && \
   chmod +x packer-provisioner-serverspec && \
   mv packer-provisioner-serverspec /usr/local/bin && \
   gem install io-console bundler rake rspec serverspec --no-document  && \
