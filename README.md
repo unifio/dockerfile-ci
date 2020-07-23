@@ -18,7 +18,7 @@ Update the global environment variables from the [.circleci/config.xml](./.circl
       RUBY_VERSION: '2.5.5'
       SOPS_VERSION: '3.5.0'
       TERRAFORM_REGISTRY: 'unifio/terraform'
-      TERRAFORM_VERSION: '0.12.28'
+      TERRAFORM_VERSION: '0.12.29'
 ```
 
 To build locally with the latest binaries in the CI container first initialize all the binaries:
@@ -31,5 +31,5 @@ TERRAFORM_VERSION=0.10.8 docker-compose terraform
 Then build:
 
 ```
-COVALENCE_VERSION=0.9.8 PACKER_VERSION=1.6.0 TERRAFORM_VERSION=0.12.28 docker-compose build
+COVALENCE_VERSION=0.9.8 PACKER_VERSION=1.6.0 TERRAFORM_VERSION=0.12.29 docker-compose build
 ```
