@@ -9,14 +9,14 @@ Update the global environment variables from the [.circleci/config.xml](./.circl
       CI_REGISTRY: 'unifio/ci'
       CI_MAJOR_VERSION: '4'
       COVALENCE_REGISTRY: 'unifio/covalence'
-      COVALENCE_VERSION: '0.9.8'
+      COVALENCE_VERSION: '0.9.9'
       DUMBINIT_VERSION: '1.2.2'
-      GOSU_VERSION: '1.11'
+      GOSU_VERSION: '1.12'
       NODE_VERSION: '10.16.1'
       PACKER_REGISTRY: 'unifio/packer'
-      PACKER_VERSION: '1.6.0'
+      PACKER_VERSION: '1.6.2'
       RUBY_VERSION: '2.5.5'
-      SOPS_VERSION: '3.5.0'
+      SOPS_VERSION: '3.6.0'
       TERRAFORM_REGISTRY: 'unifio/terraform'
       TERRAFORM_VERSION: '0.12.29'
 ```
@@ -24,12 +24,12 @@ Update the global environment variables from the [.circleci/config.xml](./.circl
 To build locally with the latest binaries in the CI container first initialize all the binaries:
 
 ```
-PACKER_VERSION=1.6.0  docker-compose packer
-TERRAFORM_VERSION=0.10.8 docker-compose terraform
+PACKER_VERSION=1.6.2  docker-compose build packer
+TERRAFORM_VERSION=0.10.8 docker-compose build terraform
 ./copybins.sh
 ```
 Then build:
 
 ```
-COVALENCE_VERSION=0.9.8 PACKER_VERSION=1.6.0 TERRAFORM_VERSION=0.12.29 docker-compose build
+COVALENCE_VERSION=0.9.9 PACKER_VERSION=1.6.2 TERRAFORM_VERSION=0.12.29 docker-compose build
 ```
