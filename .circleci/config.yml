@@ -15,7 +15,7 @@ executors:
       GOSU_VERSION: '1.12'
       NODE_VERSION: '10.16.1'
       PACKER_REGISTRY: 'unifio/packer'
-      PACKER_VERSION: '1.6.2'
+      PACKER_VERSION: '1.6.3'
       RUBY_VERSION: '2.5.5'
       SOPS_VERSION: '3.6.0'
       TERRAFORM_REGISTRY: 'unifio/terraform'
