@@ -4,30 +4,20 @@ LABEL maintainer="Unif.io, Inc. <support@unif.io>"
 
 ARG terraform_version
 ENV TERRAFORM_VERSION $terraform_version
-ENV HASHI_KEY_URL https://keybase.io/hashicorp/key.asc
+ENV HASHI_KEY_URL https://rpm.releases.hashicorp.com/gpg
 
 # This is the release of https://github.com/hashicorp/docker-base to pull in order
 # to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
 ENV DOCKER_BASE_VERSION=0.0.4
 
 RUN set -ex; \
-  \
-  fetchDeps=' \
-    ca-certificates \
-    gnupg \
-    git \
-    openssl \
-    openssh \
-    mercurial \
-    unzip \
-    wget \
-  '; \
-  apk add --no-cache --update $fetchDeps && \
-  \
+  apk add --no-cache --update build-base ca-certificates curl gnupg openssl && \
+      ruby-dev unzip wget tini su-exec libffi-dev && \
   mkdir -p /tmp/build && \
   cd /tmp/build && \
   \
   wget -O - $HASHI_KEY_URL | gpg --import; \
+  wget -O - https://keybase.io/hashicorp/pgp_keys.asc | gpg --import; \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS" && \
   wget -q "https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig" && \

@@ -49,8 +49,8 @@ RUN set -ex; \
   wget -O /tmp/build/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64"; \
   wget -O /tmp/build/gosu.asc "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64.asc"; \
   \
-  ( gpg --keyserver ipv4.pool.sks-keyservers.net --receive-keys "$GOSU_KEY" \
-  || gpg --keyserver ha.pool.sks-keyservers.net --receive-keys "$GOSU_KEY" ); \
+  ( gpg --keyserver pgp.mit.edu --receive-keys "$GOSU_KEY" \
+  || gpg --keyserver keys.openpgp.org --receive-keys "$GOSU_KEY" ); \
   gpg --batch --verify gosu.asc gosu; \
   chmod +x gosu; \
   \
