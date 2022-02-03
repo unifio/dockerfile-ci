@@ -74,7 +74,7 @@ RUN set -ex; \
   tar xvfz packer-provisioner-serverspec_${PACKER_SERVERSPEC_VERSION}_linux_amd64.tar.gz && \
   chmod +x packer-provisioner-serverspec && \
   mv packer-provisioner-serverspec /usr/local/bin && \
-  gem install io-console bundler rake rspec serverspec --no-document  && \
+  gem install io-console:0.5.9 bundler rake rspec serverspec --no-document  && \
   \
   cd / && \
   rm -rf /tmp/build
